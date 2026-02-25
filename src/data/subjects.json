@@ -1,0 +1,35 @@
+[
+  {
+    "id": 101,
+    "code": "IT101",
+    "title": "Introduction to Computing",
+    "units": 3,
+    "term": "1st Semester",
+    "program": "BSIT",
+    "preReq": "None",
+    "coReq": "None",
+    "description": "Basics of computer hardware, software, and networking."
+  },
+  {
+    "id": 102,
+    "code": "IT102",
+    "title": "Computer Programming 1",
+    "units": 3,
+    "term": "2nd Semester",
+    "program": "BSIT",
+    "preReq": "IT101",
+    "coReq": "None",
+    "description": "Introduction to logic formulation and basic coding concepts."
+  },
+  {
+    "id": 103,
+    "code": "CS201",
+    "title": "Data Structures",
+    "units": 3,
+    "term": "1st Semester",
+    "program": "BSCS",
+    "preReq": "IT102",
+    "coReq": "None",
+    "description": "Advanced organization of data for efficient algorithmic processing."
+  }
+]

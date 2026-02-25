@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "code": "BSIT",
+    "name": "BS in Information Technology",
+    "type": "Bachelor's",
+    "duration": "4 Years",
+    "units": 150,
+    "status": "Active",
+    "description": "Focuses on the study of computer systems and the use of software and hardware to store, retrieve, and transmit information."
+  },
+  {
+    "id": 2,
+    "code": "BSCS",
+    "name": "BS in Computer Science",
+    "type": "Bachelor's",
+    "duration": "4 Years",
+    "units": 155,
+    "status": "Active",
+    "description": "The study of algorithmic processes and computational machines, focusing on software development and theory."
+  }
+]
