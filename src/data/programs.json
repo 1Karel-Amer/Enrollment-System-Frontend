@@ -7,7 +7,7 @@
     "duration": "4 Years",
     "units": 150,
     "status": "Active",
-    "description": "Focuses on the study of computer systems and the use of software and hardware to store, retrieve, and transmit information."
+    "description": "Focuses on computer systems and information management."
   },
   {
     "id": 2,
@@ -17,6 +17,56 @@
     "duration": "4 Years",
     "units": 155,
     "status": "Active",
-    "description": "The study of algorithmic processes and computational machines, focusing on software development and theory."
+    "description": "Focuses on algorithmic processes and software theory."
+  },
+  {
+    "id": 3,
+    "code": "BSIS",
+    "name": "BS in Information Systems",
+    "type": "Bachelor's",
+    "duration": "4 Years",
+    "units": 148,
+    "status": "Inactive",
+    "description": "Integration of IT solutions and business processes."
+  },
+  {
+    "id": 4,
+    "code": "BSCE",
+    "name": "BS in Civil Engineering",
+    "type": "Bachelor's",
+    "duration": "5 Years",
+    "units": 180,
+    "status": "Active",
+    "description": "Deals with the design, construction, and maintenance of the physical environment."
+  },
+  {
+    "id": 5,
+    "code": "BSCrim",
+    "name": "BS in Criminology",
+    "type": "Bachelor's",
+    "duration": "4 Years",
+    "units": 160,
+    "status": "Active",
+    "description": "The scientific study of crime, including its causes and responses by law enforcement."
+  },
+  {
+    "id": 6,
+    "code": "BSA",
+    "name": "BS in Accountancy",
+    "type": "Bachelor's",
+    "duration": "4 Years",
+    "units": 175,
+    "status": "Active",
+    "description": "Provides a foundation for a career in the accounting profession."
+  },
+  {
+    "id": 7,
+    "code": "BSPsych",
+    "name": "BS in Psychology",
+    "type": "Bachelor's",
+    "duration": "4 Years",
+    "units": 145,
+    "status": "Under Review",
+    "description": "The scientific study of the human mind and its functions."
   }
 ]

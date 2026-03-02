@@ -4,72 +4,80 @@ const SubjectDetails = ({ subject, onClose }) => {
   if (!subject) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#3E0703]/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl animate-fade-in">
-        <div className="bg-[#660B05] p-8 text-white flex justify-between items-start">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-widest bg-white/20 px-2 py-1 rounded">
-              {subject.program} Offering
-            </span>
-            <h2 className="text-4xl font-black mt-4">{subject.code}</h2>
-            <p className="text-white/80 font-medium text-lg">{subject.title}</p>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#3E0703]/40 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+        {/* Modal Header */}
+        <div className="bg-[#660B05] p-10 text-white relative">
           <button
             onClick={onClose}
-            className="text-2xl font-light hover:rotate-90 transition-transform"
+            className="absolute top-8 right-8 h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
           >
-            ×
+            ✕
           </button>
+          <span className="text-[10px] font-black bg-white/20 px-3 py-1 rounded uppercase tracking-widest mb-4 inline-block">
+            {subject.program} Offering
+          </span>
+          <h2 className="text-5xl font-black uppercase tracking-tighter">
+            {subject.code}
+          </h2>
+          <p className="text-white/70 font-bold text-lg mt-1">
+            {subject.title}
+          </p>
         </div>
 
-        <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <div className="bg-slate-50 p-4 rounded-xl">
-              <p className="text-[10px] font-black text-slate-400 uppercase">
+        {/* Modal Body */}
+        <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="space-y-8">
+            <div>
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
                 Description
-              </p>
-              <p className="text-sm text-slate-600 italic leading-relaxed mt-1">
-                "{subject.description}"
+              </h4>
+              <p className="text-slate-600 text-sm leading-relaxed italic border-l-2 border-slate-100 pl-4">
+                "
+                {subject.description ||
+                  "No description provided for this subject."}
+                "
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 border border-slate-100 rounded-xl">
-                <p className="text-[10px] font-black text-slate-400 uppercase">
+
+            <div className="flex gap-4">
+              <div className="bg-slate-50 p-4 rounded-2xl flex-1 border border-slate-100">
+                <h4 className="text-[9px] font-black text-slate-400 uppercase mb-1">
                   Units
-                </p>
-                <p className="text-xl font-black text-[#3E0703]">
+                </h4>
+                <p className="text-2xl font-black text-[#660B05]">
                   {subject.units}
                 </p>
               </div>
-              <div className="p-4 border border-slate-100 rounded-xl">
-                <p className="text-[10px] font-black text-slate-400 uppercase">
+              <div className="bg-slate-50 p-4 rounded-2xl flex-1 border border-slate-100">
+                <h4 className="text-[9px] font-black text-slate-400 uppercase mb-1">
                   Term
-                </p>
-                <p className="text-sm font-bold text-[#660B05]">
+                </h4>
+                <p className="text-sm font-black text-[#3E0703]">
                   {subject.term}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="space-y-6 border-l border-slate-100 pl-8">
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase mb-2">
+          <div className="space-y-8">
+            {/* PREREQUISITE SECTION FIXED */}
+            <div className="group">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
                 Pre-requisites
-              </p>
+              </h4>
               <p
-                className={`text-lg font-black ${subject.preReq === "None" ? "text-slate-300" : "text-[#8C1007]"}`}
+                className={`text-2xl font-black ${subject.preReq === "None" ? "text-slate-200" : "text-[#3E0703]"}`}
               >
-                {subject.preReq}
+                {subject.preReq || "None"}
               </p>
             </div>
+
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase mb-2">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
                 Co-requisites
-              </p>
-              <p className="text-lg font-black text-slate-300">
-                {subject.coReq || "None"}
-              </p>
+              </h4>
+              <p className="text-2xl font-black text-slate-200">None</p>
             </div>
           </div>
         </div>
