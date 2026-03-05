@@ -1,0 +1,214 @@
+/* General Wrapper to center the card on the screen */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #3e0703; /* Deep maroon background */
+  padding: 1.5rem;
+  font-family: "Inter", sans-serif;
+}
+
+/* The Main Container (The Card) */
+.main-auth-container {
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  background-color: white;
+  border-radius: 2rem;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  min-height: 600px;
+}
+
+/* Left Section: Login Form */
+.form-section {
+  width: 50%;
+  padding: 4rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.form-header {
+  margin-bottom: 2rem;
+}
+
+.form-header h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.form-header p {
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+/* Error Message styling for failed login attempts */
+.error-message {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+  border: 1px solid #f87171;
+}
+
+/* Form and Input Grouping */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+  border-color: #660b05;
+  box-shadow: 0 0 0 2px rgba(102, 11, 5, 0.1);
+}
+
+/* Remember Me & Forgot Password spacing */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  margin: 0.5rem 0;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4b5563;
+  cursor: pointer;
+}
+
+.forgot-link {
+  background: none;
+  border: none;
+  color: #660b05;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* Sign In Button */
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background-color: #660b05;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+.submit-btn:hover {
+  background-color: #4b0804;
+}
+
+/* State for when the button is "Signing in..." */
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: #3e0703;
+}
+
+/* Footer text */
+.form-footer {
+  margin-top: 2.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.form-footer span {
+  color: #660b05;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Right Section: UM Branding */
+.branding-section {
+  width: 50%;
+  background-color: #660b05;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.branding-content {
+  text-align: center;
+  color: white;
+  z-index: 10;
+}
+
+.branding-content h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.divider {
+  height: 4px;
+  width: 60px;
+  background-color: rgba(255, 255, 255, 0.4);
+  margin: 1.5rem auto 0;
+  border-radius: 2px;
+}
+
+/* Responsive adjustment for mobile */
+@media (max-width: 768px) {
+  .main-auth-container {
+    flex-direction: column;
+    max-width: 450px;
+  }
+  .form-section,
+  .branding-section {
+    width: 100%;
+  }
+  .branding-section {
+    order: -1;
+    padding: 3rem 1rem;
+    min-height: auto;
+  }
+}
