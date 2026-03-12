@@ -4,111 +4,91 @@ import {
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
   Legend,
+  LineChart,
+  Line,
+  CartesianGrid,
 } from "recharts";
 
-// 1. Reusable Bar Chart for "Subjects per Semester"
-export const BarChartComponent = ({ data, color = "#660B05" }) => {
-  return (
-    <div className="w-full h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={data}
-          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            vertical={false}
-            stroke="#f1f5f9"
-          />
-          <XAxis
-            dataKey="name"
-            axisLine={false}
-            tickLine={false}
-            interval={0} // This ensures all labels (Summer, etc.) are visible
-            tick={{ fill: "#64748b", fontSize: 11, fontWeight: 500 }}
-          />
-          <YAxis
-            axisLine={false}
-            tickLine={false}
-            tick={{ fill: "#64748b", fontSize: 12 }}
-          />
-          <Tooltip
-            cursor={{ fill: "#f8fafc" }}
-            contentStyle={{
-              borderRadius: "12px",
-              border: "none",
-              boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
-            }}
-          />
-          <Bar
-            dataKey="count"
-            fill={color}
-            radius={[6, 6, 0, 0]}
-            barSize={45} // Slightly wider for better visibility
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
+// Colors for Pie Chart
+const COLORS = [
+  "#660B05",
+  "#0F172A",
+  "#F59E0B",
+  "#3B82F6",
+  "#10B981",
+  "#8B5CF6",
+  "#EC4899",
+  "#64748B",
+  "#F97316",
+  "#14B8A6",
+  "#D946EF",
+  "#6366F1",
+  "#A855F7",
+  "#F43F5E",
+  "#06B6D4",
+];
 
-// 2. Reusable Pie Chart for "Program Status Distribution"
-export const PieChartComponent = ({ data }) => {
-  /**
-   * Status Color Mapping:
-   * 0: Active (UM Red)
-   * 1: Inactive (Slate/Grey)
-   * 2: Under Review (Amber/Yellow)
-   */
-  const COLORS = ["#660B05", "#94A3B8", "#F59E0B"];
+// 1. Bar Chart with maxBarSize to fix width
+export const BarChartComponent = ({ data }) => (
+  <ResponsiveContainer width="100%" height={300}>
+    <BarChart data={data}>
+      <XAxis dataKey="name" fontSize={12} />
+      <YAxis fontSize={12} />
+      <Tooltip />
+      <Bar
+        dataKey="count"
+        fill="#660B05"
+        radius={[4, 4, 0, 0]}
+        maxBarSize={60}
+      />
+    </BarChart>
+  </ResponsiveContainer>
+);
 
-  return (
-    <div className="w-full h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={70}
-            outerRadius={90}
-            paddingAngle={8}
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-                stroke="none"
-              />
-            ))}
-          </Pie>
-          <Tooltip
-            contentStyle={{
-              borderRadius: "12px",
-              border: "none",
-              boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
-            }}
-          />
-          <Legend
-            iconType="circle"
-            verticalAlign="bottom"
-            height={36}
-            formatter={(value) => (
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-tighter">
-                {value}
-              </span>
-            )}
-          />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
+// 2. Pie Chart
+export const PieChartComponent = ({ data }) => (
+  <ResponsiveContainer width="100%" height={300}>
+    <PieChart>
+      <Pie
+        data={data}
+        dataKey="value"
+        nameKey="name"
+        cx="50%"
+        cy="50%"
+        innerRadius={60}
+        outerRadius={80}
+        paddingAngle={2}
+      >
+        {data.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+        ))}
+      </Pie>
+      <Tooltip />
+    </PieChart>
+  </ResponsiveContainer>
+);
+
+// 3. Line Chart
+export const LineChartComponent = ({ data }) => (
+  <ResponsiveContainer width="100%" height={300}>
+    <LineChart data={data}>
+      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+      <XAxis dataKey="name" fontSize={12} />
+      <YAxis fontSize={12} />
+      <Tooltip />
+      <Line
+        type="monotone"
+        dataKey="value"
+        stroke="#660B05"
+        strokeWidth={2}
+        dot={{ r: 4 }}
+      />
+    </LineChart>
+  </ResponsiveContainer>
+);

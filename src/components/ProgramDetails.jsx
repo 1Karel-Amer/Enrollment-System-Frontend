@@ -3,13 +3,13 @@ import React, { useState } from "react";
 const ProgramDetails = ({ program, subjects, onBack }) => {
   const [selectedYear, setSelectedYear] = useState("1st Year");
 
-  // Filter by Program Code AND the Selected Year Level
+  
   const filteredSubjects = subjects.filter(
     (s) => s.program === program.code && s.year === selectedYear,
   );
 
   const years = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
-  // If Engineering, add 5th year
+  
   if (program.duration?.includes("5")) years.push("5th Year");
 
   return (

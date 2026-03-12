@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // Added useNavigate for Logout
+import { useLocation, useNavigate } from "react-router-dom"; 
 
-// Data Imports
 import programsData from "../data/programs.json";
 import subjectsData from "../data/subjects.json";
 
-// Component Imports
 import Chatbot from "../components/Chatbot";
 import Dashboard from "../components/Dashboard";
 import ProgramList from "../components/ProgramList";
 import ProgramDetails from "../components/ProgramDetails";
-import SubjectListingPage from "../components/SubjectListingPage"; // The Module Requirement
+import SubjectListingPage from "../components/SubjectListingPage"; 
 
 const Home = () => {
   const navigate = useNavigate();
@@ -32,7 +30,7 @@ const Home = () => {
     }, 1500);
   }, []);
 
-  // Logout Functionality
+  
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/login");
@@ -41,7 +39,7 @@ const Home = () => {
   const menuItems = [
     { label: "Dashboard", key: "dashboard" },
     { label: "Programs", key: "programs" },
-    { label: "Subjects", key: "subjects" }, // Leads to Subject Offerings Module
+    { label: "Subjects", key: "subjects" }, 
     { label: "Students", key: "students" },
     { label: "Enrollment", key: "enrollment" },
     { label: "Reports", key: "reports" },

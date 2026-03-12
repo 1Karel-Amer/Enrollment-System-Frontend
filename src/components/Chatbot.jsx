@@ -11,7 +11,7 @@ const Chatbot = () => {
   const [input, setInput] = useState("");
   const scrollRef = useRef(null);
 
-  // Auto-scroll to bottom when new messages arrive
+  
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -27,7 +27,6 @@ const Chatbot = () => {
     setMessages(newMessages);
     setInput("");
 
-    // Simulate bot delay
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,

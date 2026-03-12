@@ -30,7 +30,7 @@ const SubjectListingPage = ({ subjects = [] }) => {
   }, [subjects, searchTerm, filterTerm, filterProgram, filterPrereq]);
 
   return (
-    /* THE FIX: max-w-5xl and mx-auto centers your entire page */
+   
     <div className="max-w-5xl mx-auto w-full animate-in fade-in duration-700 pb-20">
       {/* 1. HEADER SECTION */}
       <header className="mb-12">
