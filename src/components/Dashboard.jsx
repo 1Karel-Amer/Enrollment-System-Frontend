@@ -5,13 +5,10 @@ import {
   LineChartComponent,
 } from "./Charts";
 import { getDashboardStats } from "../services/api";
+import WeatherWidget from "./WeatherWidget"; // Added import
 
 const Dashboard = () => {
-  const [data, setData] = useState({
-    enrollment_trends: [],
-    course_distribution: [],
-    attendance_patterns: [],
-  });
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,16 +23,18 @@ const Dashboard = () => {
   }, []);
 
   const stats = useMemo(() => {
+    if (!data)
+      return { enrollmentData: [], distributionData: [], attendanceData: [] };
     return {
-      enrollmentData: data.enrollment_trends.map((e) => ({
+      enrollmentData: (data.enrollment_trends || []).map((e) => ({
         name: `Month ${e.month}`,
         count: e.count,
       })),
-      distributionData: data.course_distribution.map((c) => ({
+      distributionData: (data.course_distribution || []).map((c) => ({
         name: c.course_name,
         value: c.students_count,
       })),
-      attendanceData: data.attendance_patterns.map((a) => ({
+      attendanceData: (data.attendance_patterns || []).map((a) => ({
         name: a.date,
         value: a.attendance_count,
       })),
@@ -49,6 +48,12 @@ const Dashboard = () => {
       <h1 className="text-2xl font-black text-[#3E0703] uppercase">
         Academic Dashboard
       </h1>
+
+      {/* WEATHER WIDGET ADDED HERE */}
+      <section>
+        <WeatherWidget />
+      </section>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white p-6 rounded-2xl shadow-sm border">
           <h2 className="font-bold text-slate-800 mb-4 uppercase text-sm">
