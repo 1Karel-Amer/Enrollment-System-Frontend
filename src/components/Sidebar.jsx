@@ -1,74 +1,109 @@
 import React, { useState } from "react";
 import {
   LayoutDashboard,
+  GraduationCap,
+  BookOpen,
   Users,
-  FileText,
-  Settings,
+  UserPlus,
+  FileBarChart,
   LogOut,
-  Menu,
-  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
-const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const Sidebar = ({ role, activePage, onPageChange }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false); // Controls the width
 
-  const navItems = [
-    { name: "Dashboard", icon: <LayoutDashboard size={20} />, active: true },
-    { name: "Enrollment", icon: <Users size={20} /> },
-    { name: "Reports", icon: <FileText size={20} /> },
-    { name: "Settings", icon: <Settings size={20} /> },
+  const menuItems = [
+    { label: "Dashboard", key: "dashboard", icon: LayoutDashboard },
+    { label: "Programs", key: "programs", icon: GraduationCap },
+    { label: "Subjects", key: "subjects", icon: BookOpen },
+    { label: "Students", key: "students", icon: Users },
+    { label: "Enrollment", key: "enrollment", icon: UserPlus },
+    { label: "Reports", key: "reports", icon: FileBarChart },
   ];
 
   return (
-    <>
+    <aside
+      className={`relative h-screen bg-[#3E0703] text-white transition-all duration-300 ease-in-out flex flex-col shadow-2xl z-50
+        ${isCollapsed ? "w-20" : "w-64"}`}
+    >
+      {/* TOGGLE BUTTON - Floating on the edge */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#3E0703] text-white rounded-xl shadow-lg"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -right-3 top-10 bg-[#8C1007] text-white rounded-full p-1 border-2 border-[#3E0703] hover:scale-110 transition-transform"
       >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
+        {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </button>
 
-      <aside
-        className={`
-        fixed lg:static inset-y-0 left-0 z-40
-        w-64 bg-[#3E0703] text-white transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        flex flex-col h-full
-      `}
+      {/* LOGO AREA */}
+      <div
+        className={`p-6 border-b border-white/10 transition-all ${isCollapsed ? "items-center" : ""}`}
       >
-        <div className="p-8">
-          <h2 className="text-xl font-black tracking-tighter italic text-white">
-            ACADEMIC SYS
-          </h2>
-          <p className="text-[10px] text-white/40 uppercase mt-1 tracking-widest font-bold">
-            Management Portal
-          </p>
-        </div>
+        {!isCollapsed ? (
+          <>
+            <h1 className="text-xl font-black uppercase tracking-tighter italic">
+              UM PORTAL
+            </h1>
+            <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest">
+              {role === "student" ? "Student Access" : "Enrollment Admin"}
+            </p>
+          </>
+        ) : (
+          <div className="font-black text-xl italic text-center">UM</div>
+        )}
+      </div>
 
-        <nav className="flex-1 px-4 space-y-2">
-          {navItems.map((item) => (
-            <button
-              key={item.name}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${
-                item.active
-                  ? "bg-white/10 text-white shadow-inner"
+      {/* NAVIGATION LINKS */}
+      <nav className="flex-1 p-3 space-y-2 mt-4 overflow-y-auto custom-scrollbar">
+        {menuItems.map((item) => (
+          <button
+            key={item.key}
+            title={isCollapsed ? item.label : ""} // Tooltip on hover when slim
+            onClick={() => onPageChange(item.key)}
+            className={`w-full flex items-center rounded-xl transition-all duration-200 group
+              ${isCollapsed ? "justify-center p-3" : "p-3 space-x-4"}
+              ${
+                activePage === item.key
+                  ? "bg-[#660B05] text-white shadow-lg"
                   : "text-white/50 hover:bg-white/5 hover:text-white"
               }`}
-            >
-              {item.icon}
-              <span className="font-bold text-sm">{item.name}</span>
-            </button>
-          ))}
-        </nav>
+          >
+            <item.icon
+              size={20}
+              className={
+                activePage === item.key
+                  ? "text-white"
+                  : "group-hover:text-white"
+              }
+            />
 
-        <div className="p-6 border-t border-white/5">
-          <button className="w-full flex items-center gap-4 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-2xl transition-all">
-            <LogOut size={20} />
-            <span className="font-bold text-sm">Logout</span>
+            {/* Smoothly hide text when collapsed */}
+            <span
+              className={`font-semibold text-sm transition-opacity duration-300 
+              ${isCollapsed ? "hidden opacity-0" : "block opacity-100"}`}
+            >
+              {item.label}
+            </span>
           </button>
-        </div>
-      </aside>
-    </>
+        ))}
+      </nav>
+
+      {/* LOGOUT BUTTON */}
+      <div className="p-4 border-t border-white/10">
+        <button
+          className={`flex items-center text-red-400 hover:bg-red-500/10 rounded-xl transition-all w-full
+            ${isCollapsed ? "justify-center p-3" : "p-3 space-x-4"}`}
+        >
+          <LogOut size={20} />
+          {!isCollapsed && (
+            <span className="text-sm font-bold uppercase tracking-wider">
+              Logout
+            </span>
+          )}
+        </button>
+      </div>
+    </aside>
   );
 };
 

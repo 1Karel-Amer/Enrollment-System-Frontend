@@ -7,6 +7,27 @@ import {
 import { getDashboardStats } from "../services/api";
 import WeatherWidget from "./WeatherWidget";
 
+const StatCard = ({ label, value, color, trend }) => (
+  <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/60 flex flex-col justify-between hover:shadow-md transition-shadow">
+    <div className="flex justify-between items-start">
+      <div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          {label}
+        </p>
+        <h3 className="text-3xl font-black text-[#3E0703] mt-1">
+          {value.toLocaleString()}
+        </h3>
+      </div>
+      <div
+        className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center`}
+      >
+        <div className="w-1.5 h-1.5 rounded-full bg-[#660B05] animate-ping" />
+      </div>
+    </div>
+    <p className="text-[10px] font-bold text-slate-400 mt-4 italic">{trend}</p>
+  </div>
+);
+
 const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,37 +38,19 @@ const Dashboard = () => {
         setData(res.data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error("Dashboard Fetch Error:", err);
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, []);
 
-  /**
-   * DATA MAPPING
-   * We transform the Laravel API response into the format Recharts expects.
-   */
   const stats = useMemo(() => {
-    if (!data) {
-      return { enrollmentData: [], distributionData: [], attendanceData: [] };
-    }
-
+    if (!data) return { enrollment: [], distribution: [], attendance: [] };
     return {
-      // 1. Enrollment: Map to { month: 'Jan', count: 50 }
-      enrollmentData: (data.enrollment_trends || []).map((e) => ({
-        month: e.month,
-        count: e.count,
-      })),
-
-      // 2. Courses: Map to { name: 'BSIT', students_count: 120 }
-      distributionData: (data.course_distribution || []).map((c) => ({
+      enrollment: data.enrollment_trends || [],
+      distribution: (data.course_distribution || []).map((c) => ({
         name: c.name,
         students_count: c.students_count,
       })),
-
-      // 3. Attendance: Map to { month: '2026-03-01', count: 85 }
-      attendanceData: (data.attendance_patterns || []).map((a) => ({
-        month: a.date,
+      attendance: (data.attendance_patterns || []).map((a) => ({
+        month: a.date, // reusing 'month' key to fit Chart component expectations
         count: a.attendance_count,
       })),
     };
@@ -55,72 +58,59 @@ const Dashboard = () => {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#F8FAFC]">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-10 h-10 border-4 border-[#660B05] border-t-transparent rounded-full animate-spin"></div>
-          <p className="font-semibold text-slate-500 tracking-wide uppercase text-sm">
-            Loading Dashboard...
-          </p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#660B05]"></div>
       </div>
     );
 
   return (
-    <div className="p-6 lg:p-10 space-y-8 bg-slate-50 min-h-screen font-sans">
+    <div className="p-6 lg:p-10 space-y-6 bg-slate-50 min-h-screen font-sans">
       {/* HEADER */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-[#3E0703] tracking-tight">
-            Academic Dashboard
-          </h1>
-          <p className="text-slate-500 mt-1 text-sm font-medium">
-            Overview of student metrics, enrollment, and weather conditions.
-          </p>
-        </div>
-      </header>
+      <div className="mb-2">
+        <h1 className="text-3xl font-black text-[#3E0703] tracking-tighter">
+          Academic Dashboard
+        </h1>
+        <p className="text-slate-500 text-xs font-bold uppercase tracking-widest opacity-60">
+          System Overview
+        </p>
+      </div>
 
-      {/* DASHBOARD GRID */}
+      {/* TOP STATS ROW */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {(data?.summary || []).map((s, i) => (
+          <StatCard key={i} {...s} />
+        ))}
+      </div>
+
+      {/* MAIN CONTENT GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ROW 1: WEATHER & ENROLLMENT */}
-        <div className="lg:col-span-1 flex flex-col h-full">
+        {/* Weather Card */}
+        <div className="lg:col-span-1 h-full">
           <WeatherWidget />
         </div>
 
-        <div className="lg:col-span-2 flex flex-col h-full bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60">
-          <div className="mb-6 flex justify-between items-center">
-            <h2 className="font-bold text-slate-800 uppercase text-xs tracking-wider">
-              Monthly Enrollment
-            </h2>
-          </div>
-          <div className="flex-grow">
-            {/* Component expects 'month' and 'count' keys */}
-            <BarChartComponent data={stats.enrollmentData} />
-          </div>
+        {/* Enrollment Bar Chart */}
+        <div className="lg:col-span-2 bg-white p-7 rounded-3xl shadow-sm border border-slate-200/50">
+          <h2 className="font-black text-slate-800 uppercase text-[10px] tracking-[0.2em] mb-8">
+            Monthly Enrollment
+          </h2>
+          <BarChartComponent data={stats.enrollment} />
         </div>
 
-        {/* ROW 2: COURSE DISTRIBUTION & ATTENDANCE */}
-        <div className="lg:col-span-1 flex flex-col h-full bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60">
-          <div className="mb-6">
-            <h2 className="font-bold text-slate-800 uppercase text-xs tracking-wider">
-              Course Distribution
-            </h2>
-          </div>
-          <div className="flex-grow flex items-center justify-center">
-            {/* Component expects 'students_count' and 'name' keys */}
-            <PieChartComponent data={stats.distributionData} />
-          </div>
+        {/* Course Distribution */}
+        <div className="lg:col-span-1 bg-white p-7 rounded-3xl shadow-sm border border-slate-200/50">
+          <h2 className="font-black text-slate-800 uppercase text-[10px] tracking-[0.2em] mb-8">
+            Program Split
+          </h2>
+          <PieChartComponent data={stats.distribution} />
         </div>
 
-        <div className="lg:col-span-2 flex flex-col h-full bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60">
-          <div className="mb-6">
-            <h2 className="font-bold text-slate-800 uppercase text-xs tracking-wider">
-              Attendance Patterns
-            </h2>
-          </div>
-          <div className="flex-grow">
-            {/* Reusing LineChartComponent with 'month' and 'count' keys */}
-            <LineChartComponent data={stats.attendanceData} />
-          </div>
+        {/* Attendance Line Chart */}
+        <div className="lg:col-span-2 bg-white p-7 rounded-3xl shadow-sm border border-slate-200/50">
+          <h2 className="font-black text-slate-800 uppercase text-[10px] tracking-[0.2em] mb-8">
+            Attendance Patterns
+          </h2>
+          <LineChartComponent data={stats.attendance} />
         </div>
       </div>
     </div>
