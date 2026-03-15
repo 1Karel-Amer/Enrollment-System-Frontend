@@ -14,6 +14,7 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
+  HeartPulse,
 } from "lucide-react";
 
 const StudentList = ({
@@ -64,19 +65,19 @@ const StudentList = ({
 
         {/* TABLE */}
         <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
-          <table className="w-full text-left">
+          <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="p-6 text-xs font-black text-slate-400 uppercase">
+                <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
                   Student ID
                 </th>
-                <th className="p-6 text-xs font-black text-slate-400 uppercase">
+                <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
                   Full Identity
                 </th>
-                <th className="p-6 text-xs font-black text-slate-400 uppercase text-center">
+                <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">
                   Year
                 </th>
-                <th className="p-6 text-xs font-black text-slate-400 uppercase text-center">
+                <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">
                   Action
                 </th>
               </tr>
@@ -87,7 +88,7 @@ const StudentList = ({
                   <tr
                     key={student.id}
                     onClick={() => setSelectedStudent(student)}
-                    className="group cursor-pointer hover:bg-[#8C1007]/5 transition"
+                    className="group cursor-pointer hover:bg-[#8C1007]/5 transition-all"
                   >
                     <td className="p-6">
                       <span className="text-xs font-bold text-slate-500 font-mono bg-slate-100 px-3 py-1 rounded-lg">
@@ -105,7 +106,7 @@ const StudentList = ({
                       </span>
                     </td>
                     <td className="p-6 text-center">
-                      <div className="mx-auto w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 text-slate-400 group-hover:bg-[#8C1007] group-hover:text-white transition">
+                      <div className="mx-auto w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 text-slate-400 group-hover:bg-[#8C1007] group-hover:text-white transition-all shadow-sm">
                         <Eye size={16} />
                       </div>
                     </td>
@@ -115,7 +116,7 @@ const StudentList = ({
                 <tr>
                   <td colSpan="4" className="p-20 text-center">
                     <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">
-                      No students found in this range
+                      No students found
                     </p>
                   </td>
                 </tr>
@@ -148,55 +149,111 @@ const StudentList = ({
         </div>
       </div>
 
-      {/* Selected Student Panel remains exactly as you had it */}
+      {/* SELECTED STUDENT PANEL */}
       {selectedStudent && (
         <>
           <div
             onClick={() => setSelectedStudent(null)}
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
           />
-          <div
-            className={`fixed top-0 right-0 h-full w-[430px] bg-[#3E0703] text-white shadow-2xl z-40 transform transition-transform duration-500 translate-x-0`}
-          >
-            <div className="h-full overflow-y-auto p-10 relative">
+          <div className="fixed top-0 right-0 h-screen w-full max-w-[430px] bg-[#3E0703] text-white shadow-2xl z-[101] transform transition-transform duration-500 translate-x-0 overflow-hidden flex flex-col">
+            <div className="flex-1 overflow-y-auto p-10 relative">
               <button
                 onClick={() => setSelectedStudent(null)}
-                className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center"
+                className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
               >
                 <X size={18} />
               </button>
+
               <div className="flex flex-col items-center text-center mt-8">
-                <div className="w-24 h-24 bg-gradient-to-br from-[#8C1007] to-[#5c0b05] rounded-3xl flex items-center justify-center mb-6">
-                  <UserCircle size={46} />
+                <div className="w-24 h-24 bg-gradient-to-br from-[#8C1007] to-[#5c0b05] rounded-[2rem] flex items-center justify-center mb-6 shadow-2xl border border-white/10">
+                  <UserCircle size={46} className="text-white/80" />
                 </div>
-                <h2 className="text-2xl font-black uppercase italic leading-tight">
-                  {selectedStudent.first_name}
-                  <br />
+                <h2 className="text-2xl font-black uppercase italic leading-tight tracking-tighter">
+                  {selectedStudent.first_name} <br />{" "}
                   {selectedStudent.last_name}
                 </h2>
-                <p className="text-xs text-white/60 mt-2">
+                <span className="mt-3 px-4 py-1 rounded-full bg-white/10 text-[10px] font-black tracking-widest uppercase">
                   {selectedStudent.student_id}
-                </p>
+                </span>
               </div>
-              {/* ... existing academic/contact info blocks ... */}
-              <div className="mt-10 space-y-4">
-                <h3 className="text-xs uppercase font-black text-white/60 tracking-wider">
-                  Academic Information
-                </h3>
-                <div className="bg-white/5 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <GraduationCap size={16} />
-                    <span>{selectedStudent.course?.course_name || "N/A"}</span>
+
+              <div className="mt-12 space-y-8">
+                {/* ACADEMIC INFO */}
+                <div className="space-y-4">
+                  <h3 className="text-[10px] uppercase font-black text-white/40 tracking-[0.2em]">
+                    Academic Profile
+                  </h3>
+                  <div className="bg-white/5 rounded-2xl p-5 border border-white/5 space-y-4">
+                    <InfoRow
+                      icon={<GraduationCap size={18} />}
+                      label="Course"
+                      value={
+                        selectedStudent.course?.course_name ||
+                        "BS Information Technology"
+                      }
+                    />
+                    <InfoRow
+                      icon={<Users size={18} />}
+                      label="Year Level"
+                      value={selectedStudent.year_level}
+                    />
+                    <InfoRow
+                      icon={<Calendar size={18} />}
+                      label="Enrolled"
+                      value={formatDate(selectedStudent.enrollment_date)}
+                    />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Users size={16} />
-                    <span>{selectedStudent.year_level}</span>
+                </div>
+
+                {/* DEMOGRAPHICS & CONTACT */}
+                <div className="space-y-4">
+                  <h3 className="text-[10px] uppercase font-black text-white/40 tracking-[0.2em]">
+                    Personal Information
+                  </h3>
+                  <div className="bg-white/5 rounded-2xl p-5 border border-white/5 space-y-4">
+                    <InfoRow
+                      icon={<Mail size={16} />}
+                      label="Email"
+                      value={selectedStudent.email}
+                    />
+                    <InfoRow
+                      icon={<Phone size={16} />}
+                      label="Contact"
+                      value={selectedStudent.contact_no}
+                    />
+                    <InfoRow
+                      icon={<MapPin size={16} />}
+                      label="Address"
+                      value={selectedStudent.address}
+                    />
+                    <div className="flex items-center gap-4 text-xs font-bold text-white/80 pt-2 border-t border-white/5">
+                      <span className="opacity-50">
+                        Gender: {selectedStudent.gender}
+                      </span>
+                      <span className="opacity-50">•</span>
+                      <span className="opacity-50">
+                        Born: {formatDate(selectedStudent.date_of_birth)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Calendar size={16} />
-                    <span>
-                      Enrolled {formatDate(selectedStudent.enrollment_date)}
-                    </span>
+                </div>
+
+                {/* EMERGENCY CONTACT */}
+                <div className="space-y-4 pb-10">
+                  <h3 className="text-[10px] uppercase font-black text-[#8C1007] tracking-[0.2em]">
+                    Emergency Contact
+                  </h3>
+                  <div className="bg-[#8C1007]/10 rounded-2xl p-5 border border-[#8C1007]/20">
+                    <p className="text-sm font-black uppercase text-white mb-1">
+                      {selectedStudent.emergency_contact_name}
+                    </p>
+                    <div className="flex items-center gap-2 text-[#8C1007]">
+                      <HeartPulse size={14} />
+                      <span className="text-xs font-bold">
+                        {selectedStudent.emergency_contact_no}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -207,5 +264,20 @@ const StudentList = ({
     </div>
   );
 };
+
+// Helper component for cleaner code
+const InfoRow = ({ icon, label, value }) => (
+  <div className="flex items-start gap-4 group">
+    <div className="mt-1 text-white/30 group-hover:text-[#8C1007] transition-colors">
+      {icon}
+    </div>
+    <div>
+      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest leading-none mb-1">
+        {label}
+      </p>
+      <p className="text-sm font-bold text-white/90">{value}</p>
+    </div>
+  </div>
+);
 
 export default StudentList;

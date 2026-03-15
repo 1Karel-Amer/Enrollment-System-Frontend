@@ -1,50 +1,62 @@
 import React, { useState } from "react";
+import { Loader2 } from "lucide-react";
+import api from "../services/api";
 import ProgramCard from "../components/ProgramCard";
 import ProgramDetails from "../components/ProgramDetails";
 
-const Programs = ({ programs = [], subjects = [], role }) => {
+const Programs = ({ programs = [] }) => {
   const [selectedProgram, setSelectedProgram] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // If a program is selected, show the Details view
+  const handleSelectProgram = async (program) => {
+    setLoading(true);
+
+    try {
+      const response = await api.get(`/programs/${program.id}`);
+      setSelectedProgram(response.data);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load program curriculum");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Curriculum View
   if (selectedProgram) {
     return (
       <ProgramDetails
         program={selectedProgram}
-        subjects={subjects}
+        subjects={selectedProgram.subjects || []}
         onBack={() => setSelectedProgram(null)}
       />
     );
   }
 
-  // Otherwise, show the grid of ProgramCards
+  // Program List View
   return (
-    <div className="animate-in fade-in duration-500">
-      <header className="mb-10">
-        <h1 className="text-4xl font-black text-[#3E0703] uppercase tracking-tighter">
+    <div className="animate-in fade-in duration-500 max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <h1 className="text-4xl font-black text-[#3E0703] tracking-tight">
           Academic Programs
         </h1>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">
-          University of Mindanao Tagum College
-        </p>
-      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {programs.length > 0 ? (
-          programs.map((p) => (
-            <ProgramCard
-              key={p.id}
-              program={p}
-              role={role}
-              onSelect={(program) => setSelectedProgram(program)}
-            />
-          ))
-        ) : (
-          <div className="col-span-full py-20 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-100">
-            <p className="text-slate-400 font-medium italic">
-              No programs found.
-            </p>
+        {loading && (
+          <div className="flex items-center gap-2 text-[#8C1007] bg-[#8C1007]/10 px-4 py-2 rounded-full font-bold text-sm animate-pulse w-fit">
+            <Loader2 size={16} className="animate-spin" />
+            Loading curriculum...
           </div>
         )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {programs.map((p) => (
+          <ProgramCard
+            key={p.id}
+            program={p}
+            onSelect={() => handleSelectProgram(p)}
+          />
+        ))}
       </div>
     </div>
   );

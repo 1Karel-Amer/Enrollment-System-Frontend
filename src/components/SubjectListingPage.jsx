@@ -6,13 +6,13 @@ const SubjectListingPage = ({ subjects = [] }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSubject, setSelectedSubject] = useState(null);
 
-  // Filter Logic
   const filteredSubjects = useMemo(() => {
     return (subjects || []).filter((s) => {
       const lowerSearch = searchTerm.toLowerCase();
+      // UPDATED: Now matches Laravel Backend column names
       return (
-        s.subject_code?.toLowerCase().includes(lowerSearch) ||
-        s.name?.toLowerCase().includes(lowerSearch)
+        s.code?.toLowerCase().includes(lowerSearch) ||
+        s.title?.toLowerCase().includes(lowerSearch)
       );
     });
   }, [subjects, searchTerm]);
@@ -25,17 +25,15 @@ const SubjectListingPage = ({ subjects = [] }) => {
         </h1>
       </header>
 
-      {/* Search Bar */}
       <div className="relative group mb-16">
         <input
           type="text"
-          placeholder="Search subject code or name..."
+          placeholder="Search subject code or title..."
           className="w-full bg-white border-2 border-slate-100 rounded-3xl px-10 py-6 text-lg shadow-sm outline-none focus:border-[#3E0703] transition-all"
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      {/* SUBJECT LIST - Logic is now built-in here, no extra file needed */}
       <div className="space-y-4">
         {filteredSubjects.length > 0 ? (
           filteredSubjects.map((s) => (

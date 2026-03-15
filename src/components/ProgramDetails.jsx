@@ -1,70 +1,62 @@
 import React, { useState } from "react";
+import { ArrowLeft, BookOpen, Clock } from "lucide-react";
 
-const ProgramDetails = ({ program, subjects, onBack }) => {
+const ProgramDetails = ({ program, subjects = [], onBack }) => {
   const [selectedYear, setSelectedYear] = useState("1st Year");
 
-  
-  const filteredSubjects = subjects.filter(
-    (s) => s.program === program.code && s.year === selectedYear,
-  );
-
+  const filteredSubjects = subjects.filter((s) => s.year === selectedYear);
   const years = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
-  
-  if (program.duration?.includes("5")) years.push("5th Year");
+
+  if (program.duration?.includes("5")) {
+    years.push("5th Year");
+  }
 
   return (
-    <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in duration-300">
-      {/* Header with Darker UM Red */}
-      <div className="bg-[#3E0703] p-12 text-white relative">
+    // Added a max-w-6xl and mx-auto to prevent it from stretching endlessly on ultrawides
+    <div className="bg-white rounded-[1.5rem] shadow-xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-300 max-w-6xl mx-auto">
+      {/* Header - REDUCED padding from p-12 to p-6 md:p-8 */}
+      <div className="bg-gradient-to-br from-[#3E0703] via-[#5A0A05] to-[#8C1007] p-6 md:p-8 text-white relative overflow-hidden">
+        {/* Subtle background decoration */}
+        <div className="absolute top-[-20%] right-[-10%] w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+
         <button
           onClick={onBack}
-          className="group text-[10px] font-black uppercase tracking-widest opacity-70 hover:opacity-100 mb-6 flex items-center gap-2 transition-all"
+          // REDUCED mb-8 to mb-4
+          className="relative z-10 flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors text-sm font-medium bg-white/10 w-fit px-4 py-1.5 rounded-full hover:bg-white/20"
         >
-          <span className="group-hover:-translate-x-1 transition-transform">
-            ←
-          </span>{" "}
-          Back to Programs
+          <ArrowLeft size={16} /> Back to Programs
         </button>
 
-        <h1 className="text-5xl font-black uppercase tracking-tighter leading-none mb-4">
-          {program.name}
-        </h1>
-
-        <div className="flex gap-4 items-center">
-          <p className="bg-[#FFF0C4] text-[#3E0703] px-3 py-1 rounded font-black text-[10px] uppercase">
+        <div className="relative z-10">
+          <p className="text-[#ffb5b0] font-bold tracking-widest uppercase text-xs mb-1">
             {program.code}
           </p>
-          <p className="text-white/60 font-bold text-xs uppercase tracking-widest">
-            {program.duration} Curriculum
-          </p>
-        </div>
-
-        {/* Added Program Description */}
-        <div className="mt-8 max-w-2xl">
-          <p className="text-white/70 text-sm leading-relaxed italic">
-            {program.description ||
-              "The curriculum focuses on developing core competencies and professional standards required for this field of study."}
-          </p>
+          {/* REDUCED text size to text-2xl md:text-3xl and mb-4 to mb-2 */}
+          <h1 className="text-2xl md:text-3xl font-black uppercase italic leading-tight mb-2 text-balance">
+            {program.name}
+          </h1>
+          <div className="flex items-center gap-2 text-sm text-white/80 font-medium">
+            <Clock size={16} className="opacity-70" />
+            {program.duration}
+          </div>
         </div>
       </div>
 
-      <div className="p-12 bg-slate-50/50">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
-          <h3 className="text-[#3E0703] font-black uppercase text-xs tracking-widest">
-            Curriculum Structure
-          </h3>
-
-          {/* Year Level Tabs */}
-          <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-slate-200">
+      {/* Content - REDUCED padding to p-6 md:p-8 */}
+      <div className="p-6 md:p-8 bg-slate-50/50">
+        {/* Year Selector Tabs - REDUCED mb-10 to mb-6 */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex bg-slate-200/70 p-1.5 rounded-xl border border-slate-200">
             {years.map((year) => (
               <button
                 key={year}
                 onClick={() => setSelectedYear(year)}
-                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${
-                  selectedYear === year
-                    ? "bg-[#660B05] text-white shadow-md"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className={`px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300
+          ${
+            selectedYear === year
+              ? "bg-white text-[#8C1007] shadow-sm"
+              : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50"
+          }`}
               >
                 {year}
               </button>
@@ -72,40 +64,53 @@ const ProgramDetails = ({ program, subjects, onBack }) => {
           </div>
         </div>
 
-        {/* Subjects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Subjects Grid - REDUCED gap from 5 to 4 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredSubjects.length > 0 ? (
             filteredSubjects.map((s) => (
               <div
                 key={s.id}
-                className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm hover:border-[#660B05]/30 transition-colors group"
+                // REDUCED card padding from p-6 to p-5
+                className="group relative p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-lg hover:border-[#8C1007]/30 transition-all duration-300 flex flex-col h-full overflow-hidden"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <p className="font-black text-[#660B05] text-sm group-hover:scale-105 transition-transform">
+                {/* Left accent border */}
+                <div className="absolute top-0 left-0 w-1 h-full bg-slate-200 group-hover:bg-[#8C1007] transition-colors duration-300" />
+
+                <div className="flex justify-between items-start mb-2">
+                  <p className="font-black text-[#8C1007] text-sm tracking-wide bg-[#8C1007]/10 px-2 py-1 rounded-md">
                     {s.code}
                   </p>
-                  <span className="text-[9px] font-bold text-slate-300 uppercase bg-slate-50 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-1 rounded-md">
                     {s.term}
                   </span>
                 </div>
-                <p className="text-sm text-slate-700 font-bold mb-2">
+
+                <p className="text-sm font-bold text-slate-800 mb-4 flex-grow leading-snug">
                   {s.title}
                 </p>
-                <div className="pt-3 border-t border-slate-50 flex justify-between items-center">
-                  <p className="text-[9px] text-slate-400 font-medium">
-                    Pre-req:{" "}
-                    <span className="text-[#660B05] font-bold">{s.preReq}</span>
-                  </p>
-                  <p className="text-[9px] text-slate-400 font-medium">
+
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-500">
+                  <span className="flex items-center gap-1.5">
+                    <BookOpen size={14} className="text-slate-400" />
                     {s.units} Units
-                  </p>
+                  </span>
+                  {s.preReq && (
+                    <span
+                      className="text-slate-400 truncate max-w-[120px]"
+                      title={s.preReq}
+                    >
+                      Pre: {s.preReq}
+                    </span>
+                  )}
                 </div>
               </div>
             ))
           ) : (
-            <div className="col-span-full py-20 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
-              <p className="text-slate-400 text-sm font-medium italic">
-                No subjects uploaded for {selectedYear} yet.
+            <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 bg-white rounded-3xl border border-dashed border-slate-200">
+              <BookOpen size={40} className="mb-4 text-slate-200" />
+              <p className="font-medium text-base">No subjects listed</p>
+              <p className="text-sm">
+                We couldn't find any subjects for {selectedYear}.
               </p>
             </div>
           )}
