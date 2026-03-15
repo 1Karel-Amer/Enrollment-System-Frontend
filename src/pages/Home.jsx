@@ -6,6 +6,7 @@ import Chatbot from "../components/Chatbot";
 import Dashboard from "../components/Dashboard";
 import Programs from "../components/Programs";
 import SubjectListingPage from "../components/SubjectListingPage";
+import EnrollmentPage from "../components/EnrollmentPage";
 import Sidebar from "../components/Sidebar";
 import StudentList from "../components/StudentList";
 import AcademicCalendar from "../components/AcademicCalendar.jsx";
@@ -62,7 +63,6 @@ const Home = () => {
             axios.get(`${baseUrl}/students`, { headers }),
           ]);
           setPrograms(progRes.data || []);
-          // Pagination check: subjects are inside .data.data
           setSubjects(subjRes.data.data || subjRes.data || []);
           setStudentsData(studRes.data);
         } else if (activePage === "programs") {
@@ -70,7 +70,6 @@ const Home = () => {
           setPrograms(res.data || []);
         } else if (activePage === "subjects") {
           const res = await axios.get(`${baseUrl}/subjects`, { headers });
-          // Essential: Laravel paginate() returns an object, we need the array inside 'data'
           setSubjects(res.data.data || []);
         } else if (activePage === "students") {
           const res = await axios.get(`${baseUrl}/students`, {
@@ -133,44 +132,41 @@ const Home = () => {
         </header>
 
         <div className="flex-1 overflow-y-auto px-12 py-8">
-          {loading && activePage !== "students" ? (
-            <div className="flex flex-col items-center justify-center h-full gap-4">
-              <div className="w-12 h-12 border-4 border-[#8C1007]/20 border-t-[#8C1007] rounded-full animate-spin" />
-              <p className="text-[#3E0703] font-black uppercase text-[10px] tracking-widest">
-                Refreshing UM Core Data...
-              </p>
-            </div>
-          ) : (
-            <div className="max-w-[1600px] mx-auto">
-              {activePage === "dashboard" && (
-                <Dashboard
-                  programs={programs}
-                  subjects={subjects}
-                  students={studentsData.data || []}
-                />
-              )}
-              {activePage === "students" && (
-                <StudentList
-                  studentsData={studentsData}
-                  searchQuery={searchQuery}
-                  onSearchChange={(v) => {
-                    setSearchQuery(v);
-                    setCurrentPage(1);
-                  }}
-                  onPageChange={setCurrentPage}
-                />
-              )}
-              {activePage === "programs" && (
-                <Programs programs={programs} subjects={subjects} role={role} />
-              )}
-              {activePage === "subjects" && (
-                <SubjectListingPage subjects={subjects} />
-              )}
-              {activePage === "calendar" && (
-                <AcademicCalendar days={calendarDays} />
-              )}
-            </div>
-          )}
+          <div className="max-w-[1600px] mx-auto">
+            {activePage === "dashboard" && (
+              <Dashboard
+                programs={programs}
+                subjects={subjects}
+                students={studentsData.data || []}
+              />
+            )}
+            {activePage === "students" && (
+              <StudentList
+                studentsData={studentsData}
+                searchQuery={searchQuery}
+                onSearchChange={(v) => {
+                  setSearchQuery(v);
+                  setCurrentPage(1);
+                }}
+                onPageChange={setCurrentPage}
+              />
+            )}
+            {activePage === "programs" && (
+              <Programs
+                programs={programs}
+                subjects={subjects}
+                role={role}
+                isLoading={loading}
+              />
+            )}
+            {activePage === "subjects" && (
+              <SubjectListingPage subjects={subjects} isLoading={loading} />
+            )}
+            {activePage === "calendar" && (
+              <AcademicCalendar days={calendarDays} isLoading={loading} />
+            )}
+            {activePage === "enrollment" && <EnrollmentPage />}
+          </div>
         </div>
         <Chatbot />
       </main>

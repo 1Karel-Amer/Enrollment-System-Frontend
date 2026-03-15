@@ -8,14 +8,14 @@ import {
   MapPin,
   X,
   GraduationCap,
-  AlertTriangle,
   Calendar,
   Users,
-  Building2,
   ChevronLeft,
   ChevronRight,
   HeartPulse,
+  Copy, // Added a copy icon
 } from "lucide-react";
+import { toast } from "sonner"; // 1. Import Sonner
 
 const StudentList = ({
   studentsData,
@@ -37,8 +37,15 @@ const StudentList = ({
     });
   };
 
+  // 2. Added a function to copy the ID and show a toast!
+  const handleCopyId = (e, id) => {
+    e.stopPropagation(); // Prevents the row click from opening the sidebar
+    navigator.clipboard.writeText(id);
+    toast.success(`Copied Student ID: ${id}`);
+  };
+
   return (
-    <div className="relative w-full">
+    <div className="relative w-full animate-in fade-in duration-500">
       <div className="space-y-6">
         {/* SEARCH BAR */}
         <div className="flex items-center justify-between bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
@@ -50,15 +57,15 @@ const StudentList = ({
             <input
               type="text"
               placeholder="Search by Student ID or Name..."
-              className="w-full pl-11 pr-4 py-3 bg-slate-50 rounded-2xl outline-none text-sm font-medium focus:ring-2 focus:ring-[#8C1007]/20"
+              className="w-full pl-11 pr-4 py-3 bg-slate-50 rounded-2xl outline-none text-sm font-medium focus:ring-2 focus:ring-[#8C1007]/20 transition-all"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
 
           <div className="px-5 py-2 bg-[#8C1007]/5 rounded-xl border border-[#8C1007]/10">
-            <span className="text-[11px] font-black text-[#8C1007] uppercase">
-              {total} Total Registered
+            <span className="text-[11px] font-black text-[#8C1007] uppercase tracking-widest">
+              {total} Enrolled
             </span>
           </div>
         </div>
@@ -68,16 +75,16 @@ const StudentList = ({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   Student ID
                 </th>
-                <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   Full Identity
                 </th>
-                <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">
+                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
                   Year
                 </th>
-                <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">
+                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
                   Action
                 </th>
               </tr>
@@ -88,12 +95,17 @@ const StudentList = ({
                   <tr
                     key={student.id}
                     onClick={() => setSelectedStudent(student)}
-                    className="group cursor-pointer hover:bg-[#8C1007]/5 transition-all"
+                    className="group cursor-pointer hover:bg-slate-50 transition-all"
                   >
                     <td className="p-6">
-                      <span className="text-xs font-bold text-slate-500 font-mono bg-slate-100 px-3 py-1 rounded-lg">
+                      {/* 3. Updated the Student ID pill to be clickable for copying */}
+                      <button
+                        onClick={(e) => handleCopyId(e, student.student_id)}
+                        className="flex items-center gap-2 text-[11px] font-bold text-slate-500 font-mono bg-white border border-slate-200 shadow-sm px-3 py-1.5 rounded-lg hover:border-[#8C1007] hover:text-[#8C1007] transition-colors"
+                      >
                         {student.student_id}
-                      </span>
+                        <Copy size={12} className="opacity-50" />
+                      </button>
                     </td>
                     <td className="p-6">
                       <p className="text-sm font-black text-[#3E0703] uppercase">
@@ -106,8 +118,8 @@ const StudentList = ({
                       </span>
                     </td>
                     <td className="p-6 text-center">
-                      <div className="mx-auto w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 text-slate-400 group-hover:bg-[#8C1007] group-hover:text-white transition-all shadow-sm">
-                        <Eye size={16} />
+                      <div className="mx-auto w-8 h-8 rounded-full flex items-center justify-center bg-white border border-slate-200 text-slate-400 group-hover:bg-[#8C1007] group-hover:border-[#8C1007] group-hover:text-white transition-all shadow-sm">
+                        <Eye size={14} />
                       </div>
                     </td>
                   </tr>
@@ -133,14 +145,14 @@ const StudentList = ({
               <button
                 disabled={current_page === 1}
                 onClick={() => onPageChange(current_page - 1)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase disabled:opacity-30 transition hover:bg-slate-50"
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase disabled:opacity-30 transition hover:bg-slate-50 shadow-sm"
               >
                 <ChevronLeft size={14} /> Prev
               </button>
               <button
                 disabled={current_page === last_page}
                 onClick={() => onPageChange(current_page + 1)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#8C1007] text-white rounded-xl text-[10px] font-black uppercase disabled:opacity-30 transition hover:bg-[#6b0d06]"
+                className="flex items-center gap-2 px-4 py-2 bg-[#8C1007] text-white rounded-xl text-[10px] font-black uppercase disabled:opacity-30 transition hover:bg-[#6b0d06] shadow-sm shadow-red-900/20"
               >
                 Next <ChevronRight size={14} />
               </button>
@@ -149,12 +161,12 @@ const StudentList = ({
         </div>
       </div>
 
-      {/* SELECTED STUDENT PANEL */}
+      {/* SELECTED STUDENT PANEL (Unchanged) */}
       {selectedStudent && (
         <>
           <div
             onClick={() => setSelectedStudent(null)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] animate-in fade-in duration-300"
           />
           <div className="fixed top-0 right-0 h-screen w-full max-w-[430px] bg-[#3E0703] text-white shadow-2xl z-[101] transform transition-transform duration-500 translate-x-0 overflow-hidden flex flex-col">
             <div className="flex-1 overflow-y-auto p-10 relative">
@@ -179,7 +191,6 @@ const StudentList = ({
               </div>
 
               <div className="mt-12 space-y-8">
-                {/* ACADEMIC INFO */}
                 <div className="space-y-4">
                   <h3 className="text-[10px] uppercase font-black text-white/40 tracking-[0.2em]">
                     Academic Profile
@@ -206,7 +217,6 @@ const StudentList = ({
                   </div>
                 </div>
 
-                {/* DEMOGRAPHICS & CONTACT */}
                 <div className="space-y-4">
                   <h3 className="text-[10px] uppercase font-black text-white/40 tracking-[0.2em]">
                     Personal Information
@@ -239,7 +249,6 @@ const StudentList = ({
                   </div>
                 </div>
 
-                {/* EMERGENCY CONTACT */}
                 <div className="space-y-4 pb-10">
                   <h3 className="text-[10px] uppercase font-black text-[#8C1007] tracking-[0.2em]">
                     Emergency Contact
@@ -265,7 +274,6 @@ const StudentList = ({
   );
 };
 
-// Helper component for cleaner code
 const InfoRow = ({ icon, label, value }) => (
   <div className="flex items-start gap-4 group">
     <div className="mt-1 text-white/30 group-hover:text-[#8C1007] transition-colors">

@@ -1,214 +1,259 @@
-/* General Wrapper to center the card on the screen */
-.page-wrapper {
+/* --- Global Wrapper --- */
+.login-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #3e0703; /* Deep maroon background */
+
+  /* Soft, warm pearl gray base */
+  background-color: #f1f5f9;
+
+  /* Ambient Glow: Subtle maroon that blends softly to reduce contrast */
+  background-image:
+    radial-gradient(at 0% 0%, rgba(140, 16, 7, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(140, 16, 7, 0.04) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.8) 0px, transparent 100%);
+
   padding: 1.5rem;
   font-family: "Inter", sans-serif;
 }
 
-/* The Main Container (The Card) */
-.main-auth-container {
+/* --- Main Card --- */
+.login-card {
   display: flex;
   width: 100%;
-  max-width: 1000px;
+  max-width: 850px; /* Compact width as requested */
   background-color: white;
   border-radius: 2rem;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-  min-height: 600px;
+  /* Smoother, natural shadow to bridge the gap between card and background */
+  box-shadow:
+    0 20px 25px -5px rgba(15, 23, 42, 0.08),
+    0 8px 10px -6px rgba(15, 23, 42, 0.05);
+  min-height: 520px; /* Reduced vertical height */
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-/* Left Section: Login Form */
-.form-section {
+/* --- Left Section: Form --- */
+.login-form-section {
   width: 50%;
-  padding: 4rem 3rem;
+  padding: 2.5rem 3rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
 }
 
-.form-header {
+.login-header-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: rgba(140, 16, 7, 0.08);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8c1007;
+  margin-bottom: 1.25rem;
+}
+
+.login-header h2 {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #3e0703;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.login-header p {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   margin-bottom: 2rem;
 }
 
-.form-header h2 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #111827;
-  margin-bottom: 0.5rem;
-}
-
-.form-header p {
-  font-size: 1.125rem;
-  color: #6b7280;
-}
-
-/* Error Message styling for failed login attempts */
-.error-message {
-  background-color: #fee2e2;
-  color: #b91c1c;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-  text-align: center;
-  border: 1px solid #f87171;
-}
-
-/* Form and Input Grouping */
-.auth-form {
+/* --- Form Inputs --- */
+.login-form {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .input-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: 0.625rem;
+  font-weight: 900;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
 }
 
-.input-group input {
-  width: 100%;
-  padding: 1rem;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  outline: none;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-}
-
-.input-group input:focus {
-  border-color: #660b05;
-  box-shadow: 0 0 0 2px rgba(102, 11, 5, 0.1);
-}
-
-/* Remember Me & Forgot Password spacing */
-.form-options {
+.label-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.875rem;
-  margin: 0.5rem 0;
-}
-
-.remember-me {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #4b5563;
-  cursor: pointer;
 }
 
 .forgot-link {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #8c1007;
   background: none;
   border: none;
-  color: #660b05;
-  font-weight: 700;
   cursor: pointer;
   padding: 0;
 }
 
-.forgot-link:hover {
-  text-decoration: underline;
+.input-wrapper {
+  position: relative;
 }
 
-/* Sign In Button */
-.submit-btn {
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  width: 16px;
+  height: 16px;
+}
+
+.input-wrapper input {
   width: 100%;
-  padding: 1rem;
-  background-color: #660b05;
-  color: white;
-  font-size: 1.125rem;
-  font-weight: 700;
-  border: none;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 1rem;
-}
-
-.submit-btn:hover {
-  background-color: #4b0804;
-}
-
-/* State for when the button is "Signing in..." */
-.submit-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  background-color: #3e0703;
-}
-
-/* Footer text */
-.form-footer {
-  margin-top: 2.5rem;
-  text-align: center;
+  padding: 0.875rem 1rem 0.875rem 2.75rem;
+  background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 0.875rem;
+  outline: none;
   font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.form-footer span {
-  color: #660b05;
   font-weight: 700;
-  cursor: pointer;
+  color: #3e0703;
+  transition: all 0.2s ease;
 }
 
-/* Right Section: UM Branding */
-.branding-section {
-  width: 50%;
-  background-color: #660b05;
+.input-wrapper input:focus {
+  border-color: #8c1007;
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(140, 16, 7, 0.1);
+}
+
+/* --- Submit Button --- */
+.login-btn {
+  width: 100%;
+  margin-top: 0.75rem;
+  background-color: #8c1007;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 900;
+  padding: 0.875rem;
+  border: none;
+  border-radius: 0.875rem;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 15px -3px rgba(140, 16, 7, 0.2);
+}
+
+.login-btn:hover:not(:disabled) {
+  background-color: #3e0703;
+}
+
+.btn-icon {
+  transition: transform 0.2s ease;
+}
+
+.login-btn:hover:not(:disabled) .btn-icon {
+  transform: translateX(4px);
+}
+
+/* --- Right Section: Branding --- */
+.login-brand-section {
+  width: 50%;
   position: relative;
   overflow: hidden;
+  background-color: #3e0703;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-.branding-content {
-  text-align: center;
-  color: white;
+.brand-bg-image {
+  position: absolute;
+  inset: 0;
+  background-image: url("https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+}
+
+.brand-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    #3e0703 10%,
+    rgba(62, 7, 3, 0.8) 50%,
+    transparent
+  );
+}
+
+.brand-content {
+  position: relative;
   z-index: 10;
+  padding: 3rem;
 }
 
-.branding-content h1 {
+.brand-content h1 {
+  color: white;
   font-size: 3rem;
   font-weight: 900;
+  line-height: 0.85;
   text-transform: uppercase;
-  line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.05em;
+  margin-bottom: 1.25rem;
 }
 
-.divider {
-  height: 4px;
-  width: 60px;
-  background-color: rgba(255, 255, 255, 0.4);
-  margin: 1.5rem auto 0;
-  border-radius: 2px;
+.brand-content h1 span {
+  color: #ef4444;
 }
 
-/* Responsive adjustment for mobile */
-@media (max-width: 768px) {
-  .main-auth-container {
+.brand-divider {
+  width: 3rem;
+  height: 0.25rem;
+  background-color: #ef4444;
+  border-radius: 9999px;
+  margin-bottom: 1.25rem;
+}
+
+.brand-content p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  line-height: 1.6;
+}
+
+/* --- Responsive --- */
+@media (max-width: 850px) {
+  .login-card {
     flex-direction: column;
     max-width: 450px;
-  }
-  .form-section,
-  .branding-section {
-    width: 100%;
-  }
-  .branding-section {
-    order: -1;
-    padding: 3rem 1rem;
     min-height: auto;
+  }
+  .login-brand-section {
+    display: none;
+  }
+  .login-form-section {
+    width: 100%;
+    padding: 2.5rem 2rem;
   }
 }

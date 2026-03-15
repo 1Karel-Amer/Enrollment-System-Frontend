@@ -7,6 +7,59 @@ import {
 import { getDashboardStats } from "../services/api";
 import WeatherWidget from "./WeatherWidget";
 
+// Custom Skeleton for the Dashboard Layout
+const DashboardSkeleton = () => (
+  <div className="p-6 lg:p-10 space-y-6 bg-slate-50 min-h-screen font-sans w-full animate-in fade-in duration-500">
+    {/* Header Skeleton */}
+    <div className="mb-2">
+      <div className="h-8 w-64 bg-slate-200 rounded mb-3 animate-pulse"></div>
+      <div className="h-3 w-32 bg-slate-200 rounded animate-pulse opacity-60"></div>
+    </div>
+
+    {/* Top Stats Row Skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/60 h-[120px] animate-pulse flex flex-col justify-between"
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="h-2 w-20 bg-slate-200 rounded mb-3"></div>
+              <div className="h-8 w-24 bg-slate-200 rounded"></div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-slate-100"></div>
+          </div>
+          <div className="h-2 w-32 bg-slate-100 rounded mt-4"></div>
+        </div>
+      ))}
+    </div>
+
+    {/* Main Content Grid Skeleton */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-1 bg-white p-7 rounded-3xl shadow-sm border border-slate-200/50 animate-pulse h-[340px] flex flex-col">
+        <div className="h-2 w-32 bg-slate-200 rounded mb-8"></div>
+        <div className="flex-1 bg-slate-100 rounded-xl"></div>
+      </div>
+
+      <div className="lg:col-span-2 bg-white p-7 rounded-3xl shadow-sm border border-slate-200/50 animate-pulse h-[340px] flex flex-col">
+        <div className="h-2 w-40 bg-slate-200 rounded mb-8"></div>
+        <div className="flex-1 bg-slate-100 rounded-xl"></div>
+      </div>
+
+      <div className="lg:col-span-1 bg-white p-7 rounded-3xl shadow-sm border border-slate-200/50 animate-pulse h-[340px] flex flex-col">
+        <div className="h-2 w-32 bg-slate-200 rounded mb-8"></div>
+        <div className="flex-1 bg-slate-100 rounded-xl"></div>
+      </div>
+
+      <div className="lg:col-span-2 bg-white p-7 rounded-3xl shadow-sm border border-slate-200/50 animate-pulse h-[340px] flex flex-col">
+        <div className="h-2 w-40 bg-slate-200 rounded mb-8"></div>
+        <div className="flex-1 bg-slate-100 rounded-xl"></div>
+      </div>
+    </div>
+  </div>
+);
+
 const StatCard = ({ label, value, color, trend }) => (
   <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/60 flex flex-col justify-between hover:shadow-md transition-shadow">
     <div className="flex justify-between items-start">
@@ -56,12 +109,8 @@ const Dashboard = () => {
     };
   }, [data]);
 
-  if (loading)
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#660B05]"></div>
-      </div>
-    );
+  // Replaced the old spinner with our sleek new skeleton!
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="p-6 lg:p-10 space-y-6 bg-slate-50 min-h-screen font-sans">

@@ -1,85 +1,113 @@
 import React from "react";
+import { X, BookOpen, Clock, Info, AlignLeft } from "lucide-react";
 
 const SubjectDetails = ({ subject, onClose }) => {
-  if (!subject) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#3E0703]/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-        {/* Modal Header */}
-        <div className="bg-[#660B05] p-10 text-white relative">
+    // Backdrop with blur
+    <div
+      className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={onClose} // Clicking outside closes the modal
+    >
+      {/* Modal Container */}
+      <div
+        className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()} // Prevent clicks inside from closing
+      >
+        {/* Header Section */}
+        <div className="bg-gradient-to-br from-[#3E0703] via-[#5A0A05] to-[#8C1007] p-8 text-white relative">
           <button
             onClick={onClose}
-            className="absolute top-8 right-8 h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
           >
-            ✕
+            <X size={20} className="text-white" />
           </button>
-          <span className="text-[10px] font-black bg-white/20 px-3 py-1 rounded uppercase tracking-widest mb-4 inline-block">
-            {subject.program} Offering
-          </span>
-          <h2 className="text-5xl font-black uppercase tracking-tighter">
+
+          <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 border border-white/20">
             {subject.code}
-          </h2>
-          <p className="text-white/70 font-bold text-lg mt-1">
+          </span>
+          <h2 className="text-2xl font-black uppercase italic leading-tight text-balance pr-8">
             {subject.title}
-          </p>
+          </h2>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
-          <div className="space-y-8">
-            <div>
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
-                Description
-              </h4>
-              <p className="text-slate-600 text-sm leading-relaxed italic border-l-2 border-slate-100 pl-4">
-                "
-                {subject.description ||
-                  "No description provided for this subject."}
-                "
-              </p>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="bg-slate-50 p-4 rounded-2xl flex-1 border border-slate-100">
-                <h4 className="text-[9px] font-black text-slate-400 uppercase mb-1">
+        {/* Content Section */}
+        <div className="p-8">
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <div className="flex items-center gap-2 text-slate-400 mb-1">
+                <BookOpen size={14} />
+                <span className="text-[10px] font-bold uppercase tracking-wider">
                   Units
-                </h4>
-                <p className="text-2xl font-black text-[#660B05]">
-                  {subject.units}
-                </p>
+                </span>
               </div>
-              <div className="bg-slate-50 p-4 rounded-2xl flex-1 border border-slate-100">
-                <h4 className="text-[9px] font-black text-slate-400 uppercase mb-1">
-                  Term
-                </h4>
-                <p className="text-sm font-black text-[#3E0703]">
-                  {subject.term}
-                </p>
-              </div>
+              <p className="font-bold text-slate-800">{subject.units} Units</p>
             </div>
-          </div>
 
-          <div className="space-y-8">
-            {/* PREREQUISITE SECTION FIXED */}
-            <div className="group">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
-                Pre-requisites
-              </h4>
-              <p
-                className={`text-2xl font-black ${subject.preReq === "None" ? "text-slate-200" : "text-[#3E0703]"}`}
-              >
-                {subject.preReq || "None"}
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <div className="flex items-center gap-2 text-slate-400 mb-1">
+                <Clock size={14} />
+                <span className="text-[10px] font-bold uppercase tracking-wider">
+                  Term
+                </span>
+              </div>
+              <p className="font-bold text-slate-800 text-sm truncate">
+                {subject.term}
               </p>
             </div>
+          </div>
 
-            <div>
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
-                Co-requisites
-              </h4>
-              <p className="text-2xl font-black text-slate-200">None</p>
+          {/* Requisites */}
+          <div className="space-y-3 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-rose-50 rounded-lg text-rose-600 shrink-0">
+                <Info size={16} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Pre-requisites
+                </p>
+                <p className="text-sm font-semibold text-slate-700">
+                  {subject.preReq || "None"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-amber-50 rounded-lg text-amber-600 shrink-0">
+                <Info size={16} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Co-requisites
+                </p>
+                <p className="text-sm font-semibold text-slate-700">
+                  {subject.coReq || "None"}
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Description */}
+          <div className="border-t border-slate-100 pt-6">
+            <div className="flex items-center gap-2 text-[#8C1007] mb-2">
+              <AlignLeft size={16} />
+              <p className="text-xs font-bold uppercase tracking-widest">
+                Course Description
+              </p>
+            </div>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {subject.description ||
+                "No description available for this course yet."}
+            </p>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="w-full mt-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-xl transition-colors"
+          >
+            Close Details
+          </button>
         </div>
       </div>
     </div>
