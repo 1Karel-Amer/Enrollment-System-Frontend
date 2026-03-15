@@ -1,9 +1,9 @@
-import React from "react";
-
 const ForecastDisplay = ({ forecastList, setSelectedDay, selectedDay }) => {
-  if (!forecastList) return null;
+  if (!forecastList) {
+    // Return empty placeholder if forecast is missing (though our skeleton handles loading now)
+    return null;
+  }
 
-  // Group by date and pick the one closest to noon (12:00:00)
   const dailyMap = new Map();
   forecastList.forEach((item) => {
     const date = item.dt_txt.split(" ")[0];

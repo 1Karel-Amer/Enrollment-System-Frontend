@@ -5,15 +5,13 @@ import { toast } from "sonner";
 import { MapPin, Search, Wind, Droplets } from "lucide-react";
 
 const WeatherWidget = () => {
-  const [city, setCity] = useState("Tagum"); // Initial default
+  const [city, setCity] = useState("Tagum");
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
 
   const fetchWeather = async (searchCity) => {
     setLoading(true);
-    setError(false);
     try {
       const data = await getForecast(searchCity);
       if (data?.list) {
@@ -21,52 +19,29 @@ const WeatherWidget = () => {
         setSelectedDay(data.list[0].dt_txt.split(" ")[0]);
       }
     } catch (err) {
-      if (err.response?.status === 404) {
-        toast.error(`City "${searchCity}" not found.`);
-      } else {
-        setError(true);
-      }
+      toast.error(
+        err.response?.status === 404
+          ? `City "${searchCity}" not found.`
+          : "Weather sync failed.",
+      );
     } finally {
-      setLoading(false);
+      // Small delay for a smoother visual transition
+      setTimeout(() => setLoading(false), 800);
     }
   };
 
-  // AUTOMATIC LOCATION LOGIC
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // If the user allows location, we could fetch by coords
-          // For now, we'll keep it simple: if they are in a new city,
-          // they can search, or you can use a reverse-geocoding API here.
-          fetchWeather("Tagum");
-        },
-        () => {
-          // Fallback if location is denied
-          fetchWeather("Tagum");
-        },
-      );
-    } else {
-      fetchWeather("Tagum");
-    }
+    fetchWeather("Tagum");
   }, []);
 
-  if (loading && !weather) {
-    return (
-      <div className="h-full min-h-[400px] bg-[#3E0703] rounded-[2.5rem] flex items-center justify-center">
-        <div className="animate-pulse text-white/20 font-black italic tracking-widest">
-          SYNCING LOCAL ATMOSPHERE...
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <WeatherSkeleton />;
 
   const dayData =
     weather?.list?.find((item) => item.dt_txt.includes(selectedDay)) ||
     weather?.list?.[0];
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-[#4A0804] to-[#660B05] p-8 rounded-[2.5rem] shadow-2xl w-full h-full text-white border border-white/10 flex flex-col justify-between">
+    <div className="relative overflow-hidden bg-gradient-to-br from-[#4A0804] to-[#660B05] p-8 rounded-[2.5rem] shadow-2xl w-full h-full text-white border border-white/10 flex flex-col justify-between transition-all duration-500">
       <div className="relative z-10">
         <form
           onSubmit={(e) => {
@@ -89,7 +64,7 @@ const WeatherWidget = () => {
         </form>
 
         <div className="flex justify-between items-start mb-8">
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-4 duration-700">
             <div className="flex items-center gap-2 mb-1">
               <MapPin size={14} className="text-red-400" />
               <p className="text-white font-bold text-xl tracking-tight">
@@ -106,26 +81,26 @@ const WeatherWidget = () => {
           {dayData && (
             <img
               src={`https://openweathermap.org/img/wn/${dayData.weather[0].icon}@4x.png`}
-              className="w-28 drop-shadow-2xl brightness-110"
+              className="w-28 drop-shadow-2xl brightness-110 animate-in zoom-in duration-500"
               alt="weather"
             />
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-4 backdrop-blur-sm flex items-center gap-3">
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-4 backdrop-blur-sm flex items-center gap-3 hover:bg-white/10 transition-colors">
             <Droplets size={18} className="text-blue-400" />
             <div>
-              <p className="text-[9px] font-black text-white/30 uppercase">
+              <p className="text-[9px] font-black text-white/30 uppercase tracking-tighter">
                 Humidity
               </p>
               <p className="text-lg font-bold">{dayData?.main.humidity}%</p>
             </div>
           </div>
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-4 backdrop-blur-sm flex items-center gap-3">
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-4 backdrop-blur-sm flex items-center gap-3 hover:bg-white/10 transition-colors">
             <Wind size={18} className="text-slate-300" />
             <div>
-              <p className="text-[9px] font-black text-white/30 uppercase">
+              <p className="text-[9px] font-black text-white/30 uppercase tracking-tighter">
                 Wind
               </p>
               <p className="text-lg font-bold">{dayData?.wind.speed} m/s</p>
@@ -142,5 +117,30 @@ const WeatherWidget = () => {
     </div>
   );
 };
+
+const WeatherSkeleton = () => (
+  <div className="bg-gradient-to-br from-[#4A0804] to-[#660B05] p-8 rounded-[2.5rem] w-full h-full border border-white/10 flex flex-col justify-between">
+    <div>
+      <div className="h-12 w-full bg-white/10 rounded-2xl mb-8 shimmer-wrapper" />
+      <div className="flex justify-between items-start mb-8">
+        <div className="space-y-4">
+          <div className="h-6 w-32 bg-white/20 rounded-lg shimmer-wrapper" />
+          <div className="h-20 w-28 bg-white/20 rounded-2xl shimmer-wrapper" />
+          <div className="h-4 w-40 bg-white/10 rounded-md shimmer-wrapper" />
+        </div>
+        <div className="w-24 h-24 bg-white/10 rounded-full shimmer-wrapper" />
+      </div>
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="h-20 bg-white/5 rounded-3xl shimmer-wrapper" />
+        <div className="h-20 bg-white/5 rounded-3xl shimmer-wrapper" />
+      </div>
+    </div>
+    <div className="grid grid-cols-5 gap-2 mt-4 pt-6 border-t border-white/10">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="h-20 bg-white/5 rounded-2xl shimmer-wrapper" />
+      ))}
+    </div>
+  </div>
+);
 
 export default WeatherWidget;

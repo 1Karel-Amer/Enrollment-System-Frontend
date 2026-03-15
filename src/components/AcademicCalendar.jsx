@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Bell, Calendar as CalIcon, ChevronDown, BookOpen } from "lucide-react";
 
-// --- 1. NEW SKELETON COMPONENT FOR CALENDAR ---
 const CalendarSkeleton = () => (
   <div className="flex flex-col xl:flex-row gap-8 animate-in fade-in duration-500 w-full">
     {/* Main Calendar Skeleton */}
@@ -57,7 +56,6 @@ const CalendarSkeleton = () => (
   </div>
 );
 
-// --- UPDATED MAIN COMPONENT (Now accepts isLoading) ---
 const AcademicCalendar = ({ days = [], isLoading }) => {
   const [currentMonth, setCurrentMonth] = useState(2); // March 2026
   const [selectedDay, setSelectedDay] = useState(null);
@@ -99,7 +97,6 @@ const AcademicCalendar = ({ days = [], isLoading }) => {
   const isSpecial = (day) =>
     day?.event_type === "Holiday" || day?.event_type === "Event";
 
-  // --- 2. SHOW SKELETON IF LOADING ---
   if (isLoading) return <CalendarSkeleton />;
 
   return (
