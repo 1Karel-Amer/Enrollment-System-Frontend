@@ -8,6 +8,7 @@ import { Toaster } from "sonner"; // 1. Import the Toaster!
 
 import Login from "./pages/Login";
 import Home from "./pages/Home";
+import StudentProfile from "./pages/StudentProfile";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Home />} />
         <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="/students/:id" element={<StudentProfile />} />
       </Routes>
     </Router>
   );
