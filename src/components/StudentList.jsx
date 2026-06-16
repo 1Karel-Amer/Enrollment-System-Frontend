@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // 1. Imported useNavigate
 import {
   Search,
   Eye,
@@ -13,9 +14,10 @@ import {
   ChevronLeft,
   ChevronRight,
   HeartPulse,
-  Copy, // Added a copy icon
+  Copy,
+  ArrowUpRight, // 2. Imported arrow icon for the button
 } from "lucide-react";
-import { toast } from "sonner"; // 1. Import Sonner
+import { toast } from "sonner";
 
 const StudentList = ({
   studentsData,
@@ -24,6 +26,7 @@ const StudentList = ({
   searchQuery,
 }) => {
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const navigate = useNavigate(); // 3. Initialize navigation
 
   const students = studentsData.data || [];
   const { current_page, last_page, total } = studentsData;
@@ -37,9 +40,8 @@ const StudentList = ({
     });
   };
 
-  // 2. Added a function to copy the ID and show a toast!
   const handleCopyId = (e, id) => {
-    e.stopPropagation(); // Prevents the row click from opening the sidebar
+    e.stopPropagation();
     navigator.clipboard.writeText(id);
     toast.success(`Copied Student ID: ${id}`);
   };
@@ -98,7 +100,6 @@ const StudentList = ({
                     className="group cursor-pointer hover:bg-slate-50 transition-all"
                   >
                     <td className="p-6">
-                      {/* 3. Updated the Student ID pill to be clickable for copying */}
                       <button
                         onClick={(e) => handleCopyId(e, student.student_id)}
                         className="flex items-center gap-2 text-[11px] font-bold text-slate-500 font-mono bg-white border border-slate-200 shadow-sm px-3 py-1.5 rounded-lg hover:border-[#8C1007] hover:text-[#8C1007] transition-colors"
@@ -161,7 +162,7 @@ const StudentList = ({
         </div>
       </div>
 
-      {/* SELECTED STUDENT PANEL (Unchanged) */}
+      {/* ORIGINAL MAROON SELECTED STUDENT PANEL */}
       {selectedStudent && (
         <>
           <div
@@ -249,7 +250,7 @@ const StudentList = ({
                   </div>
                 </div>
 
-                <div className="space-y-4 pb-10">
+                <div className="space-y-4">
                   <h3 className="text-[10px] uppercase font-black text-[#8C1007] tracking-[0.2em]">
                     Emergency Contact
                   </h3>
@@ -265,6 +266,18 @@ const StudentList = ({
                     </div>
                   </div>
                 </div>
+
+                {/* 4. NEW VIEW FULL PROFILE BUTTON */}
+                <div className="pt-4 pb-8">
+                  <button
+                    onClick={() => navigate(`/students/${selectedStudent.id}`)}
+                    className="w-full bg-white text-[#3E0703] hover:bg-slate-200 font-black uppercase tracking-widest py-4 px-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-xl"
+                  >
+                    View Full Profile
+                    <ArrowUpRight size={18} className="text-[#3E0703]" />
+                  </button>
+                </div>
+
               </div>
             </div>
           </div>
