@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 import Chatbot from "../components/Chatbot";
 import Dashboard from "../components/Dashboard";
@@ -11,6 +10,11 @@ import Sidebar from "../components/Sidebar";
 import StudentList from "../components/StudentList";
 import AcademicCalendar from "../components/AcademicCalendar.jsx";
 
+// FIX 1: Home.jsx no longer fetches anything itself.
+// Each component (Dashboard, Programs, StudentList, etc.) fetches its own
+// data internally. This eliminates the waterfall where switching pages
+// triggered a full re-fetch of everything through a single useEffect.
+
 const Home = () => {
   const navigate = useNavigate();
   const userData = localStorage.getItem("user");
@@ -18,18 +22,9 @@ const Home = () => {
   const role = user?.role || "admin";
 
   const [activePage, setActivePage] = useState("dashboard");
-  const [loading, setLoading] = useState(false);
 
-  const [studentsData, setStudentsData] = useState({
-    data: [],
-    current_page: 1,
-    last_page: 1,
-    total: 0,
-  });
-  const [programs, setPrograms] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [calendarDays, setCalendarDays] = useState([]);
-
+  // These two stay here only for StudentList, which needs
+  // search/pagination coordinated at the layout level.
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -38,59 +33,14 @@ const Home = () => {
     navigate("/login");
   };
 
+  // Guard: redirect to login if no token
   useEffect(() => {
     const token =
       localStorage.getItem("auth_token") || localStorage.getItem("token");
     if (!token) {
       navigate("/login");
-      return;
     }
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/json",
-    };
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const baseUrl = "http://localhost:8000/api";
-
-        if (activePage === "dashboard") {
-          const [progRes, subjRes, studRes] = await Promise.all([
-            axios.get(`${baseUrl}/programs`, { headers }),
-            axios.get(`${baseUrl}/subjects`, { headers }),
-            axios.get(`${baseUrl}/students`, { headers }),
-          ]);
-          setPrograms(progRes.data || []);
-          setSubjects(subjRes.data.data || subjRes.data || []);
-          setStudentsData(studRes.data);
-        } else if (activePage === "programs") {
-          const res = await axios.get(`${baseUrl}/programs`, { headers });
-          setPrograms(res.data || []);
-        } else if (activePage === "subjects") {
-          const res = await axios.get(`${baseUrl}/subjects`, { headers });
-          setSubjects(res.data.data || []);
-        } else if (activePage === "students") {
-          const res = await axios.get(`${baseUrl}/students`, {
-            headers,
-            params: { page: currentPage, search: searchQuery },
-          });
-          setStudentsData(res.data);
-        } else if (activePage === "calendar") {
-          const res = await axios.get(`${baseUrl}/school-days`, { headers });
-          setCalendarDays(res.data || []);
-        }
-      } catch (error) {
-        console.error("API Sync Error:", error);
-        if (error.response?.status === 401) handleLogout();
-      } finally {
-        setTimeout(() => setLoading(false), 300);
-      }
-    };
-
-    fetchData();
-  }, [activePage, currentPage, searchQuery]);
+  }, [navigate]);
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] font-sans overflow-hidden">
@@ -133,17 +83,15 @@ const Home = () => {
 
         <div className="flex-1 overflow-y-auto px-12 py-8">
           <div className="max-w-[1600px] mx-auto">
-            {activePage === "dashboard" && (
-              <Dashboard
-                programs={programs}
-                subjects={subjects}
-                students={studentsData.data || []}
-              />
-            )}
+            {/* Each component now fetches its own data when it mounts.
+                Switching pages no longer triggers a global re-fetch. */}
+
+            {activePage === "dashboard" && <Dashboard />}
+
             {activePage === "students" && (
               <StudentList
-                studentsData={studentsData}
                 searchQuery={searchQuery}
+                currentPage={currentPage}
                 onSearchChange={(v) => {
                   setSearchQuery(v);
                   setCurrentPage(1);
@@ -151,20 +99,13 @@ const Home = () => {
                 onPageChange={setCurrentPage}
               />
             )}
-            {activePage === "programs" && (
-              <Programs
-                programs={programs}
-                subjects={subjects}
-                role={role}
-                isLoading={loading}
-              />
-            )}
-            {activePage === "subjects" && (
-              <SubjectListingPage subjects={subjects} isLoading={loading} />
-            )}
-            {activePage === "calendar" && (
-              <AcademicCalendar days={calendarDays} isLoading={loading} />
-            )}
+
+            {activePage === "programs" && <Programs role={role} />}
+
+            {activePage === "subjects" && <SubjectListingPage />}
+
+            {activePage === "calendar" && <AcademicCalendar />}
+
             {activePage === "enrollment" && <EnrollmentPage />}
           </div>
         </div>

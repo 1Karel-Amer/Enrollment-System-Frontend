@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -18,15 +18,40 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import api from "../services/api";
 
+// FIX 1 (continued): StudentList now fetches its own paginated data.
+// Home.jsx passes searchQuery, currentPage, and the two change handlers
+// (so the header can still coordinate search state), but the actual
+// API call lives here — it only runs when this component is visible.
 const StudentList = ({
-  studentsData,
+  searchQuery,
+  currentPage,
   onSearchChange,
   onPageChange,
-  searchQuery,
 }) => {
+  const [studentsData, setStudentsData] = useState({
+    data: [],
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+  });
+  const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setLoading(true);
+    api
+      .get("/students", {
+        params: { page: currentPage, search: searchQuery },
+      })
+      .then((res) => {
+        setStudentsData(res.data);
+      })
+      .catch(() => toast.error("Failed to load students."))
+      .finally(() => setLoading(false));
+  }, [currentPage, searchQuery]); // Re-fetches only when page or search changes
 
   const students = studentsData.data || [];
   const { current_page, last_page, total } = studentsData;
@@ -92,7 +117,26 @@ const StudentList = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {students.length > 0 ? (
+              {loading ? (
+                // Skeleton rows while fetching
+                [...Array(8)].map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="p-6">
+                      <div className="h-7 w-28 bg-slate-100 rounded-lg" />
+                    </td>
+                    <td className="p-6">
+                      <div className="h-4 w-40 bg-slate-200 rounded mb-2" />
+                      <div className="h-3 w-24 bg-slate-100 rounded" />
+                    </td>
+                    <td className="p-6 text-center">
+                      <div className="h-6 w-16 bg-slate-100 rounded-full mx-auto" />
+                    </td>
+                    <td className="p-6 text-center">
+                      <div className="h-8 w-8 bg-slate-100 rounded-full mx-auto" />
+                    </td>
+                  </tr>
+                ))
+              ) : students.length > 0 ? (
                 students.map((student) => (
                   <tr
                     key={student.id}
@@ -267,7 +311,6 @@ const StudentList = ({
                   </div>
                 </div>
 
-                {/* VIEW FULL PROFILE BUTTON */}
                 <div className="pt-4 pb-8">
                   <button
                     onClick={() => navigate(`/students/${selectedStudent.id}`)}

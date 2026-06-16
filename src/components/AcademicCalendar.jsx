@@ -1,9 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Bell, Calendar as CalIcon, ChevronDown, BookOpen } from "lucide-react";
+import api from "../services/api";
 
 const CalendarSkeleton = () => (
   <div className="flex flex-col xl:flex-row gap-8 animate-in fade-in duration-500 w-full">
-    {/* Main Calendar Skeleton */}
     <div className="flex-[2] bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm animate-pulse">
       <div className="flex justify-between items-center mb-10">
         <div>
@@ -31,13 +31,8 @@ const CalendarSkeleton = () => (
           ))}
       </div>
     </div>
-
-    {/* Sidebar Skeleton */}
     <div className="flex-1 space-y-6">
-      {/* Daily Inspection Card Skeleton */}
       <div className="bg-slate-200/70 h-64 rounded-[2.5rem] shadow-sm animate-pulse"></div>
-
-      {/* Upcoming Notice List Skeleton */}
       <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm h-72 animate-pulse">
         <div className="h-3 w-32 bg-slate-200 rounded mb-6"></div>
         <div className="space-y-4">
@@ -56,9 +51,21 @@ const CalendarSkeleton = () => (
   </div>
 );
 
-const AcademicCalendar = ({ days = [], isLoading }) => {
-  const [currentMonth, setCurrentMonth] = useState(2); // March 2026
+// FIX 1 (continued): AcademicCalendar now fetches school days itself.
+// Previously Home.jsx fetched /school-days even when other pages were active.
+const AcademicCalendar = () => {
+  const [days, setDays] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentMonth, setCurrentMonth] = useState(2);
   const [selectedDay, setSelectedDay] = useState(null);
+
+  useEffect(() => {
+    api
+      .get("/school-days")
+      .then((res) => setDays(res.data || []))
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }, []); // Only fetches once when calendar tab is opened
 
   const months = [
     "January",
@@ -101,7 +108,7 @@ const AcademicCalendar = ({ days = [], isLoading }) => {
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 animate-in fade-in duration-500">
-      {/* MAIN CALENDAR SECTION */}
+      {/* MAIN CALENDAR */}
       <div className="flex-[2] bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
         <div className="flex justify-between items-center mb-10">
           <div>
@@ -168,7 +175,7 @@ const AcademicCalendar = ({ days = [], isLoading }) => {
         </div>
       </div>
 
-      {/* SIDEBAR SECTION */}
+      {/* SIDEBAR */}
       <div className="flex-1 space-y-6">
         <div className="bg-[#3E0703] text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden">
           <div className="relative z-10">
@@ -215,7 +222,7 @@ const AcademicCalendar = ({ days = [], isLoading }) => {
           />
         </div>
 
-        {/* UPCOMING NOTICE LIST */}
+        {/* UPCOMING NOTICE */}
         <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex-1">
           <h3 className="text-[10px] font-black text-[#3E0703] uppercase flex items-center gap-2 mb-6">
             <Bell size={14} className="text-red-500" /> Upcoming Notice

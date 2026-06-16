@@ -46,6 +46,9 @@ const StatCard = ({ label, value, color, trend }) => (
   </div>
 );
 
+// FIX 1 (continued): Dashboard now fetches its own data.
+// Previously Home.jsx fetched and passed data as props — now this
+// component is self-contained, so it only loads when actually visible.
 const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,7 +60,7 @@ const Dashboard = () => {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, []); // Empty deps: only fetches once when the Dashboard mounts
 
   const stats = useMemo(() => {
     if (!data) return { enrollment: [], distribution: [], attendance: [] };
@@ -65,8 +68,8 @@ const Dashboard = () => {
       enrollment: data.enrollment_trends || [],
       distribution: data.course_distribution || [],
       attendance: (data.attendance_patterns || []).map((a) => ({
-        month: a.date, // X-Axis value
-        count: a.attendance_count, // Y-Axis value
+        month: a.date,
+        count: a.attendance_count,
       })),
     };
   }, [data]);
