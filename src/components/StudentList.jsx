@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // 1. Imported useNavigate
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Eye,
@@ -15,7 +15,7 @@ import {
   ChevronRight,
   HeartPulse,
   Copy,
-  ArrowUpRight, // 2. Imported arrow icon for the button
+  ArrowUpRight,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,7 +26,7 @@ const StudentList = ({
   searchQuery,
 }) => {
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const navigate = useNavigate(); // 3. Initialize navigation
+  const navigate = useNavigate();
 
   const students = studentsData.data || [];
   const { current_page, last_page, total } = studentsData;
@@ -137,7 +137,7 @@ const StudentList = ({
             </tbody>
           </table>
 
-          {/* PAGINATION CONTROLS */}
+          {/* PAGINATION */}
           <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
               Page {current_page} of {last_page}
@@ -162,7 +162,7 @@ const StudentList = ({
         </div>
       </div>
 
-      {/* ORIGINAL MAROON SELECTED STUDENT PANEL */}
+      {/* STUDENT DRAWER PANEL */}
       {selectedStudent && (
         <>
           <div
@@ -267,7 +267,7 @@ const StudentList = ({
                   </div>
                 </div>
 
-                {/* 4. NEW VIEW FULL PROFILE BUTTON */}
+                {/* VIEW FULL PROFILE BUTTON */}
                 <div className="pt-4 pb-8">
                   <button
                     onClick={() => navigate(`/students/${selectedStudent.id}`)}
@@ -277,7 +277,6 @@ const StudentList = ({
                     <ArrowUpRight size={18} className="text-[#3E0703]" />
                   </button>
                 </div>
-
               </div>
             </div>
           </div>
