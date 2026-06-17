@@ -245,8 +245,7 @@ const StudentList = ({
                       icon={<GraduationCap size={18} />}
                       label="Course"
                       value={
-                        selectedStudent.course?.course_name ||
-                        "BS Information Technology"
+                        selectedStudent.program?.name || "Unassigned Program"
                       }
                     />
                     <InfoRow

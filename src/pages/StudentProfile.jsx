@@ -109,7 +109,7 @@ const StudentProfile = () => {
                 <span className="font-semibold text-gray-700">
                   {student.student_id}
                 </span>{" "}
-                • {student.course?.course_name || "Unassigned Program"}
+                {student.program?.name || "Unassigned Program"}
               </p>
               <p className="text-gray-400 text-xs mt-1">
                 Enrolled: {student.enrollment_date || "N/A"} •{" "}
