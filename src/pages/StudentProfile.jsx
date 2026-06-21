@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "../services/api"; // ← FIXED: was "import axios from 'axios'"
+import api from "../services/api";
 
 const StudentProfile = () => {
   const { id } = useParams();
@@ -17,7 +17,7 @@ const StudentProfile = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/students/${id}`); // ← FIXED: was axios.get(full URL)
+        const response = await api.get(`/students/${id}`);
         setStudent(response.data);
         setError(null);
       } catch (err) {
@@ -192,7 +192,7 @@ const StudentProfile = () => {
                 {subjectsCount}
               </span>
               <span className="text-sm text-gray-400 font-medium">
-                dropped subjects
+                total records
               </span>
             </div>
           </div>
@@ -234,46 +234,90 @@ const StudentProfile = () => {
 
         {/* Dynamic Data Display Area */}
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mt-6 min-h-[250px]">
-          {/* TAB 1: GRADES */}
-          {activeTab === "grades" &&
-            (student.grades && student.grades.length > 0 ? (
-              <div className="text-left w-full">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">
-                  Enrolled Subjects
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {student.grades.map((sub, index) => (
-                    <div
-                      key={index}
-                      className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex justify-between items-center"
-                    >
-                      <div>
-                        <p className="text-sm font-bold text-gray-800">
-                          {sub.subject_name}
-                        </p>
-                        <p className="text-xs text-gray-500 font-medium">
-                          {sub.subject_code} • {sub.units} Units
-                        </p>
-                      </div>
-                      <div className="text-right flex flex-col items-end">
+          {/* TAB 1: GRADES PER SEMESTER */}
+{activeTab === "grades" &&
+  (student.grades && student.grades.length > 0 ? (
+    <div className="space-y-8 w-full text-left">
+      {Object.entries(
+        student.grades.reduce((acc, currentGrade) => {
+          const semesterKey = `${currentGrade.school_year} - ${currentGrade.term}`;
+          if (!acc[semesterKey]) acc[semesterKey] = [];
+          acc[semesterKey].push(currentGrade);
+          return acc;
+        }, {})
+      ).map(([semesterTitle, semGrades]) => {
+        // Calculate GWA for this semester specifically
+        const validGrades = semGrades.filter(g => g.final_grade !== null && !isNaN(g.final_grade));
+        const totalUnits = validGrades.reduce((sum, g) => sum + (Number(g.units) || 0), 0);
+        const weightedSum = validGrades.reduce((sum, g) => sum + (Number(g.final_grade) * (Number(g.units) || 0)), 0);
+        const semesterGWA = totalUnits > 0 ? (weightedSum / totalUnits).toFixed(2) : "0.00";
+
+        return (
+          <div key={semesterTitle} className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
+            {/* Header Block Section */}
+            <div className="bg-gray-50/70 px-6 py-4 flex justify-between items-center border-b border-gray-100">
+              <h4 className="text-[14px] font-bold text-gray-800 tracking-tight">
+                {semesterTitle}
+              </h4>
+              <p className="text-[13px] text-gray-500 font-medium">
+                GWA: <span className="text-gray-900 font-black">{semesterGWA}</span>
+              </p>
+            </div>
+
+            {/* Structured Table Section */}
+            <div className="px-6 pb-2 overflow-x-auto">
+              <table className="w-full text-sm text-left border-collapse">
+                <thead className="text-[10px] text-gray-400 uppercase font-bold tracking-widest border-b border-gray-100">
+                  <tr>
+                    <th className="py-4 w-1/5">Code</th>
+                    <th className="py-4 w-2/5">Subject</th>
+                    <th className="py-4 text-center w-1/12">Units</th>
+                    <th className="py-4 text-center w-1/6">Final Grade</th>
+                    <th className="py-4 text-center w-1/6">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {semGrades.map((sub, idx) => (
+                    <tr key={idx} className="hover:bg-gray-50/40 transition-colors">
+                      <td className="py-4 font-bold text-gray-700 text-[13px]">
+                        {sub.subject_code}
+                      </td>
+                      <td className="py-4 text-gray-500 font-medium text-[13px]">
+                        {sub.subject_name}
+                      </td>
+                      <td className="py-4 text-center font-medium text-gray-600 text-[13px]">
+                        {sub.units}
+                      </td>
+                      <td className="py-4 text-center font-black text-gray-800 text-[14px]">
+                        {sub.final_grade !== null ? Number(sub.final_grade).toFixed(2) : "—"}
+                      </td>
+                      <td className="py-4 text-center">
                         <span
-                          className={`px-3 py-1 text-xs font-bold rounded-md ${sub.status === "Enrolled" ? "bg-green-50 text-green-700" : "bg-gray-200 text-gray-700"}`}
+                          className={`px-2.5 py-0.5 text-[10px] font-bold rounded-md tracking-wide ${
+                            sub.status?.toLowerCase() === "passed" || sub.status?.toLowerCase() === "enrolled"
+                              ? "bg-green-100/70 text-green-700"
+                              : "bg-red-100/70 text-red-700"
+                          }`}
                         >
-                          {sub.status.toUpperCase()}
+                          {sub.status || "PASSED"}
                         </span>
-                      </div>
-                    </div>
+                      </td>
+                    </tr>
                   ))}
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full pt-10">
-                <p className="text-gray-400 font-bold tracking-widest text-xs uppercase text-center">
-                  No verified academic records indexed inside the system data
-                  arrays.
-                </p>
-              </div>
-            ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  ) : (
+    <div className="flex items-center justify-center py-12">
+      <p className="text-gray-400 font-bold tracking-widest text-xs uppercase text-center">
+        No verified academic records indexed inside the system data arrays.
+      </p>
+    </div>
+  ))}
 
           {/* TAB 2: INSIGHTS — ML Dropout Risk */}
           {activeTab === "insights" && <InsightsPanel studentId={id} />}
@@ -322,18 +366,7 @@ const StudentProfile = () => {
           )}
 
           {/* TAB 4: ATTENDANCE LOG */}
-          {activeTab === "attendance" && (
-            <div className="flex items-center justify-center h-full pt-10 text-center">
-              <div>
-                <p className="text-gray-800 font-bold mb-2">
-                  No attendance logs reported yet.
-                </p>
-                <p className="text-gray-400 font-medium text-sm">
-                  Attendance metrics are updated during the midterm period.
-                </p>
-              </div>
-            </div>
-          )}
+          {activeTab === "attendance" && <AttendancePanel studentId={id} />}
 
           {/* TAB 5: REMARKS */}
           {activeTab === "remarks" && (
@@ -354,8 +387,140 @@ const StudentProfile = () => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// AttendancePanel — Fetches Present & Absent Logs from /students/{id}/attendance
+// ─────────────────────────────────────────────────────────────────────────────
+
+const AttendancePanel = ({ studentId }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(`/students/${studentId}/attendance`);
+        setData(response.data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching attendance logs:", err);
+        setError("Could not load attendance details. Please check connection.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttendance();
+  }, [studentId]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-900 mb-4"></div>
+        <p className="text-gray-400 text-sm font-semibold tracking-widest uppercase">
+          Compiling Attendance Data...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="bg-red-50 text-red-600 px-6 py-4 rounded-lg border border-red-200 text-center">
+          <p className="font-bold mb-1">Attendance Logs Unavailable</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const { summary, subject_attendance } = data;
+
+  return (
+    <div className="space-y-8 text-left w-full">
+      {/* Metrics Header Summary Grid */}
+      <div>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">Summary Totals</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
+            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">
+              Attendance Rate
+            </p>
+            <p className="text-2xl font-black text-gray-900">
+              {summary.attendance_rate}%
+            </p>
+          </div>
+          <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+            <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1">
+              Days Present
+            </p>
+            <p className="text-2xl font-black text-green-700">
+              {summary.present} Days
+            </p>
+          </div>
+          <div className="bg-red-50 border border-red-100 rounded-xl p-4">
+            <p className="text-xs text-red-600 font-bold uppercase tracking-wider mb-1">
+              Days Absent
+            </p>
+            <p className="text-2xl font-black text-red-700">
+              {summary.absent} Days
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Breakdown per subject code */}
+      <div>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">
+          Per-Subject Logs
+        </h3>
+        {subject_attendance && subject_attendance.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-500 border-collapse">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-100 font-bold tracking-wider">
+                <tr>
+                  <th className="px-4 py-3">Subject Name</th>
+                  <th className="px-4 py-3 text-center">Present Counts</th>
+                  <th className="px-4 py-3 text-center">Absent Counts</th>
+                  <th className="px-4 py-3 text-center">Subject Rate</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {subject_attendance.map((sub, index) => (
+                  <tr key={index} className="hover:bg-gray-50 bg-white">
+                    <td className="px-4 py-3">
+                      <p className="font-bold text-gray-800">{sub.subject_name}</p>
+                      <p className="text-xs text-gray-400">{sub.subject_code}</p>
+                    </td>
+                    <td className="px-4 py-3 text-center font-bold text-green-600 bg-green-50/20">
+                      {sub.present}
+                    </td>
+                    <td className="px-4 py-3 text-center font-bold text-red-600 bg-red-50/20">
+                      {sub.absent}
+                    </td>
+                    <td className="px-4 py-3 text-center font-black text-gray-900">
+                      {sub.attendance_rate}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-400 text-sm italic">
+            No per-subject attendance data matching current filter profiles.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // InsightsPanel — fetches ML prediction from /students/{id}/predict-risk
-// Uses the same api instance so the Bearer token is sent automatically
 // ─────────────────────────────────────────────────────────────────────────────
 
 const InsightsPanel = ({ studentId }) => {
