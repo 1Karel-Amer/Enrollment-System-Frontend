@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "../services/api"; // ← FIXED: was "import axios from 'axios'"
+import api from "../services/api";
+import StudentGrades from '../components/StudentGrades';
 
 const StudentProfile = () => {
   const { id } = useParams();
@@ -17,13 +18,15 @@ const StudentProfile = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/students/${id}`); // ← FIXED: was axios.get(full URL)
+        const response = await api.get(`/students/${id}`); 
+        
         setStudent(response.data);
         setError(null);
+
       } catch (err) {
         console.error("Error fetching student data:", err);
         setError(
-          "System Error Response: Request failed. Please verify API states.",
+          "System Error Response: Request failed. Please verify API states."
         );
       } finally {
         setLoading(false);
@@ -56,16 +59,27 @@ const StudentProfile = () => {
   }
 
   if (!student)
-    return <div className="p-8 text-center">No student record found.</div>;
+    return <div className="p-8 text-center text-gray-500">No student record found.</div>;
 
-  // Calculations
-  const subjectsCount = student.grades ? student.grades.length : 0;
-  const totalUnits = student.grades
-    ? student.grades.reduce(
-        (sum, subject) => sum + (Number(subject.units) || 3),
-        0,
-      )
-    : 0;
+  // ----------------------------------------------------------------------
+  // BULLETPROOF CALCULATIONS
+  // Using explicit loops instead of reduce() prevents "Object as React Child" 
+  // crashes if the backend returns unexpected array structures.
+  // ----------------------------------------------------------------------
+  const subjectsList = Array.isArray(student.subjects) ? student.subjects : [];
+  const attendanceList = Array.isArray(student.attendance) ? student.attendance : [];
+
+  const subjectsCount = subjectsList.length;
+
+  let totalUnits = 0;
+  subjectsList.forEach(subject => {
+    totalUnits += (Number(subject?.units) || 3);
+  });
+
+  let totalAbsences = 0;
+  attendanceList.forEach(log => {
+    totalAbsences += (Number(log?.absences) || 0);
+  });
 
   // Helper for tab styling
   const getTabClass = (tabName) => {
@@ -91,14 +105,14 @@ const StudentProfile = () => {
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex justify-between items-center">
           <div className="flex items-center space-x-6">
             <div className="w-16 h-16 bg-[#7c1d1d] text-white rounded-full flex items-center justify-center text-2xl font-bold">
-              {student.first_name.charAt(0)}
-              {student.last_name.charAt(0)}
+              {String(student.first_name?.charAt(0) || "U")}
+              {String(student.last_name?.charAt(0) || "U")}
             </div>
 
             <div>
               <div className="flex items-center space-x-3">
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {student.first_name} {student.last_name}
+                  {String(student.first_name || "")} {String(student.last_name || "")}
                 </h1>
                 <span className="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-md tracking-wider uppercase">
                   ACTIVE
@@ -107,13 +121,13 @@ const StudentProfile = () => {
               <p className="text-gray-500 text-sm mt-1">
                 Student ID:{" "}
                 <span className="font-semibold text-gray-700">
-                  {student.student_id}
+                  {String(student.student_id || "Unknown")}
                 </span>{" "}
-                {student.program?.name || "Unassigned Program"}
+                {String(student.program?.name || "Unassigned Program")}
               </p>
               <p className="text-gray-400 text-xs mt-1">
-                Enrolled: {student.enrollment_date || "N/A"} •{" "}
-                {student.year_level || "1st Year"}
+                Enrolled: {String(student.enrollment_date || "N/A")} •{" "}
+                {String(student.year_level || "1st Year")}
               </p>
             </div>
           </div>
@@ -142,9 +156,7 @@ const StudentProfile = () => {
             </p>
             <div className="flex items-baseline space-x-1">
               <span className="text-3xl font-black text-gray-900">
-                {student.gpa !== null && student.gpa !== undefined
-                  ? Number(student.gpa).toFixed(2)
-                  : "N/A"}
+                {student.gpa != null ? Number(student.gpa).toFixed(2) : "N/A"}
               </span>
               <span className="text-sm text-gray-400 font-medium">
                 out of 5.00
@@ -161,24 +173,21 @@ const StudentProfile = () => {
                 {totalUnits}
               </span>
               <span className="text-sm text-gray-400 font-medium">
-                of {student.required_units || 148} required
+                of {String(student.required_units || 148)} required
               </span>
             </div>
           </div>
 
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
             <p className="text-xs text-gray-400 font-bold tracking-wider mb-2 uppercase">
-              Attendance
+              Total Absences
             </p>
             <div className="flex items-baseline space-x-1">
               <span className="text-3xl font-black text-gray-900">
-                {student.attendance !== null && student.attendance !== undefined
-                  ? student.attendance
-                  : "0"}
-                %
+                {totalAbsences}
               </span>
               <span className="text-sm text-gray-400 font-medium">
-                this semester
+                days missed
               </span>
             </div>
           </div>
@@ -192,90 +201,38 @@ const StudentProfile = () => {
                 {subjectsCount}
               </span>
               <span className="text-sm text-gray-400 font-medium">
-                dropped subjects
+                recorded subjects
               </span>
             </div>
           </div>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-8 border-b border-gray-200 mt-8">
-          <button
-            onClick={() => setActiveTab("grades")}
-            className={getTabClass("grades")}
-          >
+        <div className="flex space-x-8 border-b border-gray-200 mt-8 overflow-x-auto">
+          <button onClick={() => setActiveTab("grades")} className={getTabClass("grades")}>
             Grades Per Semester
           </button>
-          <button
-            onClick={() => setActiveTab("insights")}
-            className={getTabClass("insights")}
-          >
+          <button onClick={() => setActiveTab("insights")} className={getTabClass("insights")}>
             Insights
           </button>
-          <button
-            onClick={() => setActiveTab("personal")}
-            className={getTabClass("personal")}
-          >
+          <button onClick={() => setActiveTab("personal")} className={getTabClass("personal")}>
             Personal Info
           </button>
-          <button
-            onClick={() => setActiveTab("attendance")}
-            className={getTabClass("attendance")}
-          >
+          <button onClick={() => setActiveTab("attendance")} className={getTabClass("attendance")}>
             Attendance Log
           </button>
-          <button
-            onClick={() => setActiveTab("remarks")}
-            className={getTabClass("remarks")}
-          >
+          <button onClick={() => setActiveTab("remarks")} className={getTabClass("remarks")}>
             Remarks
           </button>
         </div>
 
         {/* Dynamic Data Display Area */}
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mt-6 min-h-[250px]">
+          
           {/* TAB 1: GRADES */}
-          {activeTab === "grades" &&
-            (student.grades && student.grades.length > 0 ? (
-              <div className="text-left w-full">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">
-                  Enrolled Subjects
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {student.grades.map((sub, index) => (
-                    <div
-                      key={index}
-                      className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex justify-between items-center"
-                    >
-                      <div>
-                        <p className="text-sm font-bold text-gray-800">
-                          {sub.subject_name}
-                        </p>
-                        <p className="text-xs text-gray-500 font-medium">
-                          {sub.subject_code} • {sub.units} Units
-                        </p>
-                      </div>
-                      <div className="text-right flex flex-col items-end">
-                        <span
-                          className={`px-3 py-1 text-xs font-bold rounded-md ${sub.status === "Enrolled" ? "bg-green-50 text-green-700" : "bg-gray-200 text-gray-700"}`}
-                        >
-                          {sub.status.toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full pt-10">
-                <p className="text-gray-400 font-bold tracking-widest text-xs uppercase text-center">
-                  No verified academic records indexed inside the system data
-                  arrays.
-                </p>
-              </div>
-            ))}
+          {activeTab === "grades" && <StudentGrades subjects={subjectsList} />}
 
-          {/* TAB 2: INSIGHTS — ML Dropout Risk */}
+          {/* TAB 2: INSIGHTS */}
           {activeTab === "insights" && <InsightsPanel studentId={id} />}
 
           {/* TAB 3: PERSONAL INFO */}
@@ -286,36 +243,20 @@ const StudentProfile = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
                 <div>
-                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">
-                    Email Address
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {student.email || "N/A"}
-                  </p>
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Email Address</p>
+                  <p className="text-sm font-semibold text-gray-900">{String(student.email || "N/A")}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">
-                    Contact Number
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {student.contact_no || "N/A"}
-                  </p>
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Contact Number</p>
+                  <p className="text-sm font-semibold text-gray-900">{String(student.contact_no || "N/A")}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">
-                    Date of Birth
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {student.date_of_birth || "N/A"}
-                  </p>
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Date of Birth</p>
+                  <p className="text-sm font-semibold text-gray-900">{String(student.date_of_birth || "N/A")}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">
-                    Home Address
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {student.address || "N/A"}
-                  </p>
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Home Address</p>
+                  <p className="text-sm font-semibold text-gray-900">{String(student.address || "N/A")}</p>
                 </div>
               </div>
             </div>
@@ -323,15 +264,47 @@ const StudentProfile = () => {
 
           {/* TAB 4: ATTENDANCE LOG */}
           {activeTab === "attendance" && (
-            <div className="flex items-center justify-center h-full pt-10 text-center">
-              <div>
-                <p className="text-gray-800 font-bold mb-2">
-                  No attendance logs reported yet.
-                </p>
-                <p className="text-gray-400 font-medium text-sm">
-                  Attendance metrics are updated during the midterm period.
-                </p>
-              </div>
+            <div className="w-full">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Attendance Records</h3>
+              
+              {attendanceList.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                  <p className="text-gray-800 font-bold mb-1">No attendance logs reported yet.</p>
+                  <p className="text-gray-400 font-medium text-sm">Attendance metrics are updated regularly.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto border border-gray-200 rounded-xl">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                        <th className="p-4 font-bold border-b border-gray-200">Subject Code</th>
+                        <th className="p-4 font-bold border-b border-gray-200">School Year</th>
+                        <th className="p-4 font-bold border-b border-gray-200">Term</th>
+                        <th className="p-4 font-bold border-b border-gray-200">Absences</th>
+                        <th className="p-4 font-bold border-b border-gray-200">Remarks</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-sm text-gray-700 divide-y divide-gray-100">
+                      {attendanceList.map((log, index) => {
+                        const absenceCount = Number(log.absences) || 0;
+                        return (
+                          <tr key={log.id || index} className="hover:bg-gray-50 transition">
+                            <td className="p-4 font-semibold text-gray-900">{String(log.subject_code || "N/A")}</td>
+                            <td className="p-4">{String(log.school_year || "N/A")}</td>
+                            <td className="p-4 capitalize">{String(log.term || "N/A")}</td>
+                            <td className="p-4">
+                              <span className={`px-2 py-1 rounded-md font-bold text-xs ${absenceCount > 3 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`}>
+                                {absenceCount}
+                              </span>
+                            </td>
+                            <td className="p-4">{String(log.remarks || "-")}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
@@ -354,10 +327,8 @@ const StudentProfile = () => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// InsightsPanel — fetches ML prediction from /students/{id}/predict-risk
-// Uses the same api instance so the Bearer token is sent automatically
+// InsightsPanel 
 // ─────────────────────────────────────────────────────────────────────────────
-
 const InsightsPanel = ({ studentId }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -392,261 +363,160 @@ const InsightsPanel = ({ studentId }) => {
     );
   }
 
-  if (error) {
+  if (error || !data) {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="bg-red-50 text-red-600 px-6 py-4 rounded-lg border border-red-200 text-center">
           <p className="font-bold mb-1">Insights Unavailable</p>
-          <p className="text-sm">{error}</p>
+          <p className="text-sm">{error || "Data is missing."}</p>
         </div>
       </div>
     );
   }
 
-  if (!data) return null;
-
   const {
-    dropout_risk,
-    key_factors,
-    suggested_alternative_programs,
-    metrics_evaluated,
-    meta,
+    dropout_risk = {},
+    key_factors = [],
+    suggested_alternative_programs = [],
+    metrics_evaluated = {},
+    meta = {},
   } = data;
-  const { gpa_trend, um_scale, attendance_rate } = metrics_evaluated;
-  const isHighRisk = dropout_risk.label === "High Risk";
+  
+  const { gpa_trend = { history: [] }, um_scale = {}, attendance_rate = 0 } = metrics_evaluated;
+  const isHighRisk = String(dropout_risk.label) === "High Risk";
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       {/* ── LEFT: Risk Score + Key Factors + GPA Trend ── */}
       <div>
         {/* Risk score card */}
-        <div
-          className={`rounded-xl p-5 mb-6 flex items-center justify-between ${isHighRisk ? "bg-red-50" : "bg-green-50"}`}
-        >
+        <div className={`rounded-xl p-5 mb-6 flex items-center justify-between ${isHighRisk ? "bg-red-50" : "bg-green-50"}`}>
           <div>
-            <p
-              className={`text-xs font-bold uppercase tracking-wider mb-1 ${isHighRisk ? "text-red-400" : "text-green-400"}`}
-            >
+            <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${isHighRisk ? "text-red-400" : "text-green-400"}`}>
               Dropout Risk Score
             </p>
-            <p
-              className={`text-4xl font-black ${isHighRisk ? "text-red-700" : "text-green-700"}`}
-            >
-              {dropout_risk.score_display}
+            <p className={`text-4xl font-black ${isHighRisk ? "text-red-700" : "text-green-700"}`}>
+              {String(dropout_risk.score_display || "N/A")}
             </p>
-            <p
-              className={`text-xs mt-1 ${isHighRisk ? "text-red-400" : "text-green-400"}`}
-            >
-              Threshold: {dropout_risk.threshold_used * 100}% ·{" "}
-              {meta.model_version}
+            <p className={`text-xs mt-1 ${isHighRisk ? "text-red-400" : "text-green-400"}`}>
+              Threshold: {(Number(dropout_risk.threshold_used) || 0) * 100}% · {String(meta.model_version || "v1.0")}
             </p>
           </div>
-          <span
-            className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider ${isHighRisk ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}
-          >
-            {dropout_risk.label}
+          <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider ${isHighRisk ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+            {String(dropout_risk.label || "Safe")}
           </span>
         </div>
 
         {/* Key Factors */}
-        <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-3">
-          Key Factors
-        </p>
+        <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-3">Key Factors</p>
         <div className="space-y-3 mb-6">
-          {key_factors.map((f, i) => (
-            <div
-              key={i}
-              className="flex items-start justify-between p-3 bg-gray-50 rounded-xl border border-gray-100"
-            >
+          {Array.isArray(key_factors) && key_factors.map((f, i) => (
+            <div key={i} className="flex items-start justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
               <div className="flex-1">
-                <p className="text-sm font-bold text-gray-800">{f.factor}</p>
+                <p className="text-sm font-bold text-gray-800">{String(f.factor || "Unknown")}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Value: {f.value} · {f.note}
+                  Value: {String(f.value || "N/A")} · {String(f.note || "")}
                 </p>
               </div>
-              <span
-                className={`ml-3 px-2.5 py-1 text-xs font-bold rounded-md flex-shrink-0 ${
-                  f.impact === "high"
-                    ? "bg-red-100 text-red-700"
-                    : f.impact === "medium"
-                      ? "bg-orange-100 text-orange-700"
-                      : "bg-green-100 text-green-700"
-                }`}
-              >
-                {f.impact.toUpperCase()}
+              <span className={`ml-3 px-2.5 py-1 text-xs font-bold rounded-md flex-shrink-0 ${f.impact === "high" ? "bg-red-100 text-red-700" : f.impact === "medium" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}>
+                {String(f.impact || "low").toUpperCase()}
               </span>
             </div>
           ))}
         </div>
 
         {/* GPA Trend Chart */}
-        <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-3">
-          GPA Trend Per Semester
-        </p>
+        <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-3">GPA Trend Per Semester</p>
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <div
-            className="flex items-flex-end justify-between gap-2"
-            style={{ height: 70, alignItems: "flex-end" }}
-          >
-            {gpa_trend.history.map((h, i) => {
-              const maxGpa =
-                Math.max(...gpa_trend.history.map((x) => x.gpa)) + 0.5;
-              const pct = Math.round((h.gpa / maxGpa) * 100);
-              const color =
-                h.gpa < 2.0 ? "#dc2626" : h.gpa < 2.5 ? "#f97316" : "#16a34a";
+          <div className="flex items-flex-end justify-between gap-2" style={{ height: 70, alignItems: "flex-end" }}>
+            {Array.isArray(gpa_trend.history) && gpa_trend.history.map((h, i) => {
+              const gpaValue = Number(h.gpa) || 0;
+              const maxGpa = Math.max(...gpa_trend.history.map((x) => Number(x.gpa) || 0)) + 0.5;
+              const pct = maxGpa === 0 ? 0 : Math.round((gpaValue / maxGpa) * 100);
+              const color = gpaValue < 2.0 ? "#dc2626" : gpaValue < 2.5 ? "#f97316" : "#16a34a";
               return (
-                <div
-                  key={i}
-                  className="flex flex-col items-center gap-1 flex-1"
-                >
-                  <span style={{ fontSize: 9, color: "#9ca3af" }}>{h.gpa}</span>
-                  <div
-                    style={{
-                      width: "100%",
-                      height: `${pct}%`,
-                      background: color,
-                      borderRadius: "3px 3px 0 0",
-                      minHeight: 4,
-                    }}
-                  />
+                <div key={i} className="flex flex-col items-center gap-1 flex-1">
+                  <span style={{ fontSize: 9, color: "#9ca3af" }}>{gpaValue}</span>
+                  <div style={{ width: "100%", height: `${pct}%`, background: color, borderRadius: "3px 3px 0 0", minHeight: 4 }} />
                 </div>
               );
             })}
           </div>
           <div className="flex justify-between mt-2 gap-2">
-            {gpa_trend.history.map((h, i) => (
-              <p
-                key={i}
-                style={{
-                  fontSize: 8,
-                  flex: 1,
-                  textAlign: "center",
-                  color: "#9ca3af",
-                  margin: 0,
-                  lineHeight: 1.2,
-                }}
-              >
-                {h.sem.replace("T", "")}
+            {Array.isArray(gpa_trend.history) && gpa_trend.history.map((h, i) => (
+              <p key={i} style={{ fontSize: 8, flex: 1, textAlign: "center", color: "#9ca3af", margin: 0, lineHeight: 1.2 }}>
+                {String(h.sem || "").replace("T", "")}
               </p>
             ))}
           </div>
           <div className="flex justify-between mt-2">
-            <span
-              className={`text-xs font-bold ${
-                gpa_trend.direction === "volatile"
-                  ? "text-orange-500"
-                  : gpa_trend.direction === "declining"
-                    ? "text-red-500"
-                    : "text-green-600"
-              }`}
-            >
+            <span className={`text-xs font-bold ${gpa_trend.direction === "volatile" ? "text-orange-500" : gpa_trend.direction === "declining" ? "text-red-500" : "text-green-600"}`}>
               {gpa_trend.direction === "volatile" && "⚠ Volatile"}
               {gpa_trend.direction === "declining" && "↓ Declining"}
               {gpa_trend.direction === "improving" && "↑ Improving"}
-              {gpa_trend.direction === "stable" && "→ Stable"} · std_dev:{" "}
-              {gpa_trend.std_dev}
+              {gpa_trend.direction === "stable" && "→ Stable"} · std_dev: {String(gpa_trend.std_dev || "0")}
             </span>
-            <span className="text-xs text-gray-400">
-              slope: {gpa_trend.slope}
-            </span>
+            <span className="text-xs text-gray-400">slope: {String(gpa_trend.slope || "0")}</span>
           </div>
         </div>
 
         {/* GPA averages */}
         <div className="grid grid-cols-2 gap-3 mt-4">
           <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">
-              Midterm GPA
-            </p>
-            <p className="text-2xl font-black text-gray-900">
-              {um_scale.midterm_gpa_avg}
-            </p>
+            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Midterm GPA</p>
+            <p className="text-2xl font-black text-gray-900">{String(um_scale.midterm_gpa_avg || "0.0")}</p>
           </div>
           <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">
-              Final GPA
-            </p>
-            <p className="text-2xl font-black text-gray-900">
-              {um_scale.final_gpa_avg}
-            </p>
+            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Final GPA</p>
+            <p className="text-2xl font-black text-gray-900">{String(um_scale.final_gpa_avg || "0.0")}</p>
           </div>
         </div>
       </div>
 
       {/* ── RIGHT: Recommendations + Actions + Meta ── */}
       <div>
-        <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-3">
-          Suggested Alternative Programs
-        </p>
+        <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-3">Suggested Alternative Programs</p>
 
-        {suggested_alternative_programs.length === 0 ? (
+        {!Array.isArray(suggested_alternative_programs) || suggested_alternative_programs.length === 0 ? (
           <div className="bg-green-50 rounded-xl p-5 border border-green-100 text-center mb-6">
-            <p className="text-green-700 font-bold text-sm">
-              No alternatives needed
-            </p>
-            <p className="text-green-500 text-xs mt-1">
-              Student is performing well in current program.
-            </p>
+            <p className="text-green-700 font-bold text-sm">No alternatives needed</p>
+            <p className="text-green-500 text-xs mt-1">Student is performing well in current program.</p>
           </div>
         ) : (
           <div className="space-y-3 mb-6">
             {suggested_alternative_programs.map((prog, i) => (
-              <div
-                key={prog.id}
-                className={`rounded-xl p-4 border ${i === 0 ? "border-blue-300 bg-blue-50" : "border-gray-100 bg-gray-50"}`}
-              >
+              <div key={prog.id || i} className={`rounded-xl p-4 border ${i === 0 ? "border-blue-300 bg-blue-50" : "border-gray-100 bg-gray-50"}`}>
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-sm font-bold text-gray-900">
-                    {prog.course_name}
-                  </p>
-                  <span
-                    className={`px-2.5 py-1 text-xs font-bold rounded-md ${i === 0 ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-600"}`}
-                  >
+                  <p className="text-sm font-bold text-gray-900">{String(prog.course_name || "Unknown")}</p>
+                  <span className={`px-2.5 py-1 text-xs font-bold rounded-md ${i === 0 ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-600"}`}>
                     {i === 0 ? "Best Match" : "Good Match"}
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mb-2">
-                  {prog.department} · Rank #{prog.rank}
-                </p>
-                <p className="text-xs text-gray-500 mb-3 leading-relaxed">
-                  {prog.reason}
-                </p>
+                <p className="text-xs text-gray-400 mb-2">{String(prog.department || "Unknown")} · Rank #{String(prog.rank || i + 1)}</p>
+                <p className="text-xs text-gray-500 mb-3 leading-relaxed">{String(prog.reason || "")}</p>
                 <div className="flex justify-between text-xs text-gray-400 mb-1">
                   <span>Match score</span>
-                  <span
-                    className={`font-bold ${i === 0 ? "text-blue-600" : "text-gray-600"}`}
-                  >
-                    {prog.match_display}
-                  </span>
+                  <span className={`font-bold ${i === 0 ? "text-blue-600" : "text-gray-600"}`}>{String(prog.match_display || "0%")}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div
-                    className={`h-1.5 rounded-full transition-all duration-700 ${i === 0 ? "bg-blue-500" : "bg-gray-400"}`}
-                    style={{ width: prog.match_display }}
-                  />
+                  <div className={`h-1.5 rounded-full transition-all duration-700 ${i === 0 ? "bg-blue-500" : "bg-gray-400"}`} style={{ width: String(prog.match_display || "0%") }} />
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Admin actions — only for high risk */}
+        {/* Admin actions */}
         {isHighRisk && (
           <>
-            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-3">
-              Admin Actions
-            </p>
+            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-3">Admin Actions</p>
             <div className="space-y-2 mb-6">
               {[
                 { icon: "📧", label: "Notify Adviser" },
                 { icon: "📅", label: "Schedule Intervention" },
                 { icon: "📤", label: "Send Recommendation to Student" },
               ].map((action) => (
-                <button
-                  key={action.label}
-                  onClick={() => alert(`${action.label} — coming soon!`)}
-                  className="w-full flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition text-left"
-                >
+                <button key={action.label} onClick={() => alert(`${action.label} — coming soon!`)} className="w-full flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition text-left">
                   <span>{action.icon}</span>
                   <span>{action.label}</span>
                 </button>
@@ -657,40 +527,13 @@ const InsightsPanel = ({ studentId }) => {
 
         {/* Meta */}
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">
-            Model Info
-          </p>
+          <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Model Info</p>
           <div className="space-y-1">
-            <p className="text-xs text-gray-500">
-              Version:{" "}
-              <span className="font-semibold text-gray-700">
-                {meta.model_version}
-              </span>
-            </p>
-            <p className="text-xs text-gray-500">
-              Evaluated:{" "}
-              <span className="font-semibold text-gray-700">
-                {new Date(meta.evaluated_at).toLocaleString()}
-              </span>
-            </p>
-            <p className="text-xs text-gray-500">
-              Semesters used:{" "}
-              <span className="font-semibold text-gray-700">
-                {meta.semesters_used}
-              </span>
-            </p>
-            <p className="text-xs text-gray-500">
-              Data:{" "}
-              <span className="font-semibold text-gray-700">
-                {meta.data_completeness}
-              </span>
-            </p>
-            <p className="text-xs text-gray-500">
-              Attendance:{" "}
-              <span className="font-semibold text-gray-700">
-                {attendance_rate}%
-              </span>
-            </p>
+            <p className="text-xs text-gray-500">Version: <span className="font-semibold text-gray-700">{String(meta.model_version || "N/A")}</span></p>
+            <p className="text-xs text-gray-500">Evaluated: <span className="font-semibold text-gray-700">{meta.evaluated_at ? new Date(meta.evaluated_at).toLocaleString() : "N/A"}</span></p>
+            <p className="text-xs text-gray-500">Semesters used: <span className="font-semibold text-gray-700">{String(meta.semesters_used || "0")}</span></p>
+            <p className="text-xs text-gray-500">Data: <span className="font-semibold text-gray-700">{String(meta.data_completeness || "N/A")}</span></p>
+            <p className="text-xs text-gray-500">Attendance: <span className="font-semibold text-gray-700">{String(attendance_rate)}%</span></p>
           </div>
         </div>
       </div>
