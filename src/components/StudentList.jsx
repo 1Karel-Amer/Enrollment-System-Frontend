@@ -343,4 +343,3 @@ const InfoRow = ({ icon, label, value }) => (
 );
 
 export default StudentList;
-//testc
